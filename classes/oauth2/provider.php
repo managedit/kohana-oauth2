@@ -3,7 +3,6 @@
 defined('SYSPATH') or die('No direct script access.');
 
 include_once Kohana::find_file('vendor', 'OAuth2', 'inc');
-include_once Kohana::find_file('vendor', 'OAuth2Client', 'inc');
 include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
 
 /**
