@@ -1064,7 +1064,7 @@ abstract class OAuth2 {
           $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_EXPIRED_TOKEN);
 
         // store the refresh token locally so we can delete it when a new refresh token is generated
-        $this->setVariable('_old_refresh_token', $stored["token"]);
+        $this->setVariable('_old_refresh_token', $input["refresh_token"]);
 
         break;
       case OAUTH2_GRANT_TYPE_NONE:
