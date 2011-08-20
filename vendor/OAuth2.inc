@@ -351,7 +351,7 @@ define("OAUTH2_ERROR_INSUFFICIENT_SCOPE", "insufficient_scope");
  * @author Updated to draft v10 by Aaron Parecki <aaron@parecki.com>.
  * @author Debug, coding style clean up and documented by Edison Wong <hswong3i@pantarei-design.com>.
  */
-abstract class OAuth2 {
+abstract class Vendor_OAuth2 {
 
   /**
    * Array of persistent variables stored.

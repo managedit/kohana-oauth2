@@ -8,7 +8,7 @@
  *
  * @sa <a href="https://github.com/facebook/php-sdk">Facebook PHP SDK</a>.
  */
-class OAuth2Exception extends Exception {
+class Vendor_OAuth2Exception extends Exception {
 
   /**
    * The result from the API server that represents the exception information.

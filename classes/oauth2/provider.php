@@ -11,7 +11,7 @@ include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class OAuth2_Provider extends OAuth2 {
+class OAuth2_Provider extends Vendor_OAuth2 {
 
 	public static $db_group = 'default';
 

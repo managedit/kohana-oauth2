@@ -18,7 +18,7 @@ define("OAUTH2_DEFAULT_BASE_DOMAIN", '');
  *
  * @sa <a href="https://github.com/facebook/php-sdk">Facebook PHP SDK</a>.
  */
-abstract class OAuth2Client {
+abstract class Vendor_OAuth2Client {
 
   /**
    * Array of persistent variables stored.
@@ -221,7 +221,7 @@ abstract class OAuth2Client {
 
     // Results are returned, errors are thrown.
     if (is_array($result) && isset($result['error'])) {
-      $e = new OAuth2Exception($result);
+      $e = new Vendor_OAuth2Exception($result);
       switch ($e->getType()) {
         // OAuth 2.0 Draft 10 style.
         case 'invalid_token':
@@ -494,7 +494,7 @@ abstract class OAuth2Client {
     }
 
     if ($result === FALSE) {
-      $e = new OAuth2Exception(array(
+      $e = new Vendor_OAuth2Exception(array(
         'code' => curl_errno($ch),
         'message' => curl_error($ch),
       ));
