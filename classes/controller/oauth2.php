@@ -13,7 +13,7 @@ class Controller_OAuth2 extends Controller {
 
 	public function before()
 	{
-		$this->_oauth = new Kohana_OAuth2();
+		$this->_oauth = OAuth2_Provider::factory();
 
 		if ($this->_verify_oauth)
 		{

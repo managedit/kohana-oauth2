@@ -14,9 +14,14 @@ include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class Kohana_OAuth2 extends OAuth2 {
+class OAuth2_Provider extends OAuth2 {
 
 	public static $db_group = 'default';
+
+	public static function factory()
+	{
+		return new OAuth2_Provider();
+	}
 
 	protected function getSupportedGrantTypes()
 	{
@@ -56,7 +61,7 @@ class Kohana_OAuth2 extends OAuth2 {
 
 		$query->param(':client_id', $client_id);
 
-		$result = $query->execute(Kohana_OAuth2::$db_group);
+		$result = $query->execute(OAuth2_Provider::$db_group);
 
 		if ($client_secret === NULL)
 			return ($result->count() == 1);
@@ -70,7 +75,7 @@ class Kohana_OAuth2 extends OAuth2 {
 
 		$query->param(':client_id', $client_id);
 
-		$result = $query->execute(Kohana_OAuth2::$db_group);
+		$result = $query->execute(OAuth2_Provider::$db_group);
 
 		if ($result->count() != 1)
 			return FALSE;
@@ -84,7 +89,7 @@ class Kohana_OAuth2 extends OAuth2 {
 
 		$query->param(':code', $code);
 
-		$result = $query->execute(Kohana_OAuth2::$db_group)->as_array();
+		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
 
 		return (count($result) == 1) ? $result[0] : NULL;
 	}
@@ -108,7 +113,7 @@ class Kohana_OAuth2 extends OAuth2 {
 
 		$query->param(':oauth_token', $oauth_token);
 
-		$result = $query->execute(Kohana_OAuth2::$db_group)->as_array();
+		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
 
 		return (count($result) == 1) ? $result[0] : NULL;
 	}

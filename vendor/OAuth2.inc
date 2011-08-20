@@ -937,7 +937,7 @@ abstract class OAuth2 {
    *
    * @ingroup oauth2_section_5
    */
-  private function getAccessTokenParams() {
+  protected function getAccessTokenParams() {
     $auth_header = $this->getAuthorizationHeader();
 
     if ($auth_header !== FALSE) {
