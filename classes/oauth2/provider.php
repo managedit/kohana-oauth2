@@ -25,7 +25,7 @@ class OAuth2_Provider extends OAuth2 {
 		return array(
 			OAUTH2_GRANT_TYPE_AUTH_CODE,
 			OAUTH2_GRANT_TYPE_REFRESH_TOKEN,
-			OAUTH2_GRANT_TYPE_USER_CREDENTIALS,
+//			OAUTH2_GRANT_TYPE_USER_CREDENTIALS,
 		);
 	}
 
@@ -96,10 +96,10 @@ class OAuth2_Provider extends OAuth2 {
 	 * @link    http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2
 	 * @ingroup oauth2_section_4
 	 */
-	protected function checkUserCredentials($client_id, $username, $password)
-	{
-		return Auth::instance()->login($username, $password);
-	}
+//	protected function checkUserCredentials($client_id, $username, $password)
+//	{
+//		return Auth::instance()->login($username, $password);
+//	}
 
 	protected function getRedirectUri($client_id)
 	{
