@@ -32,22 +32,22 @@ class OAuth2_Provider extends OAuth2 {
 		$token_param = $this->getAccessTokenParams();
 
 		if ($token_param === FALSE) // Access token was not provided
-			throw new OAuth2_Exception('The request is missing a required parameter, includes an unsupported parameter or parameter value, repeats the same parameter, uses more than one method for including an access token, or is otherwise malformed', OAuth2_Exception::INVALID_REQUEST);
+			throw new OAuth2_Exception('The request is missing a required parameter, includes an unsupported parameter or parameter value, repeats the same parameter, uses more than one method for including an access token, or is otherwise malformed', NULL, OAuth2_Exception::INVALID_REQUEST);
 
 		// Get the stored token data (from the implementing subclass)
 		$token = $this->getAccessToken($token_param);
 
 		if ($token === NULL)
-			throw new OAuth2_Exception('The access token provided is invalid', OAuth2_Exception::INVALID_TOKEN);
+			throw new OAuth2_Exception('The access token provided is invalid', NULL, OAuth2_Exception::INVALID_TOKEN);
 
 		// Check token expiration (I'm leaving this check separated, later we'll fill in better error messages)
 		if (isset($token["expires"]) && time() > $token["expires"])
-			throw new OAuth2_Exception('The access token provided has expired', OAuth2_Exception::EXPIRED_TOKEN);
+			throw new OAuth2_Exception('The access token provided has expired', NULL, OAuth2_Exception::EXPIRED_TOKEN);
 
 		// Check scope, if provided
 		// If token doesn't have a scope, it's NULL/empty, or it's insufficient, then throw an error
 		if ($scope && (!isset($token["scope"]) || !$token["scope"] || !$this->checkScope($scope, $token["scope"])))
-			throw new OAuth2_Exception('The request requires higher privileges than provided by the access token', OAuth2_Exception::INSUFFICIENT_SCOPE);
+			throw new OAuth2_Exception('The request requires higher privileges than provided by the access token', NULL, OAuth2_Exception::INSUFFICIENT_SCOPE);
 
 		return TRUE;
 	}
