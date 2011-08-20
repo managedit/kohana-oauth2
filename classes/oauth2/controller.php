@@ -8,7 +8,7 @@
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class Controller_OAuth2 extends Controller {
+class OAuth2_Controller extends Controller {
 
 	/**
 	 * @var Kohana_OAuth2

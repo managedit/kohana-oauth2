@@ -8,7 +8,7 @@
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class Controller_OAuth2_Endpoints extends Controller_OAuth2 {
+class Controller_OAuth2_Endpoints extends OAuth2_Controller {
 	/**
 	 * @var boolean
 	 */
