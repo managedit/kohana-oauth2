@@ -54,9 +54,9 @@ class OAuth2_Provider extends OAuth2 {
 
 	protected function checkClientCredentials($client_id, $client_secret = NULL)
 	{
-		$query = DB::query(Database::SELECT, "SELECT client_secret FROM clients WHERE client_id = :client_id");
-
-		$query->param(':client_id', $client_id);
+		$query = DB::select('client_secret')
+			->from('oauth2_client_secret')
+			->where('client_id', '=', $client_id);
 
 		$result = $query->execute(OAuth2_Provider::$db_group);
 
@@ -68,9 +68,9 @@ class OAuth2_Provider extends OAuth2 {
 
 	protected function getRedirectUri($client_id)
 	{
-		$query = DB::query(Database::SELECT, "SELECT redirect_uri FROM clients WHERE client_id = :client_id");
-
-		$query->param(':client_id', $client_id);
+		$query = DB::select('redirect_uri')
+			->from('oauth2_clients')
+			->where('client_id', '=', $client_id);
 
 		$result = $query->execute(OAuth2_Provider::$db_group);
 
@@ -82,9 +82,9 @@ class OAuth2_Provider extends OAuth2 {
 
 	protected function getAuthCode($code)
 	{
-		$query = DB::query(Database::SELECT, "SELECT code, client_id, redirect_uri, expires, scope FROM auth_codes WHERE code = :code");
-
-		$query->param(':code', $code);
+		$query = DB::select('code', 'client_id', 'redirect_uri', 'expires', 'scope')
+			->from('oauth2_auth_codes')
+			->where('code', '=', $code);
 
 		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
 
@@ -93,22 +93,28 @@ class OAuth2_Provider extends OAuth2 {
 
 	protected function setAuthCode($code, $client_id, $redirect_uri, $expires, $scope = NULL)
 	{
-		$query = DB::query(Database::INSERT, "INSERT INTO auth_codes (code, client_id, redirect_uri, expires, scope) VALUES (:code, :client_id, :redirect_uri, :expires, :scope)");
-
-		$query->param(":code", $code);
-		$query->param(":client_id", $client_id);
-		$query->param(":redirect_uri", $redirect_uri);
-		$query->param(":expires", $expires);
-		$query->param(":scope", $scope);
+		$query = DB::insert('oauth2_auth_codes', array(
+			'code',
+			'client_id',
+			'redirect_uri',
+			'expires',
+			'scope',
+		))->values(array(
+			$code,
+			$client_id,
+			$redirect_uri,
+			$expires,
+			$scope,
+		));
 
 		$result = $query->execute();
 	}
 
 	protected function getAccessToken($oauth_token)
 	{
-		$query = DB::query(Database::SELECT, "SELECT client_id, expires, scope FROM tokens WHERE oauth_token = :oauth_token");
-
-		$query->param(':oauth_token', $oauth_token);
+		$query = DB::select('client_id', 'expires', 'expires')
+			->from('oauth2_tokens')
+			->where('oauth_token', '=', $oauth_token);
 
 		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
 
@@ -117,12 +123,17 @@ class OAuth2_Provider extends OAuth2 {
 
 	protected function setAccessToken($oauth_token, $client_id, $expires, $scope = NULL)
 	{
-		$query = DB::query(Database::INSERT, "INSERT INTO tokens (oauth_token, client_id, expires, scope) VALUES (:oauth_token, :client_id, :expires, :scope)");
-
-		$query->param(":oauth_token", $oauth_token);
-		$query->param(":client_id", $client_id);
-		$query->param(":expires", $expires);
-		$query->param(":scope", $scope);
+		$query = DB::insert('oauth2_tokens', array(
+			'oauth_token',
+			'client_id',
+			'expires',
+			'scope',
+		))->values(array(
+			$oauth_token,
+			$client_id,
+			$expires,
+			$scope,
+		));
 
 		$result = $query->execute();
 	}
