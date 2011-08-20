@@ -4,7 +4,7 @@
  *
  *
  * @package    OAuth2
- * @category   Controller
+ * @category   Exceptions
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */

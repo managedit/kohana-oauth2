@@ -1,6 +1,4 @@
-<?php
-
-defined('SYSPATH') or die('No direct script access.');
+<?php defined('SYSPATH') or die('No direct script access.');
 
 include_once Kohana::find_file('vendor', 'OAuth2', 'inc');
 include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
@@ -9,7 +7,7 @@ include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
  *
  *
  * @package    OAuth2
- * @category   Controller
+ * @category   Library
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
