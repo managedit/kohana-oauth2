@@ -23,8 +23,30 @@ class Controller_OAuth2 extends Controller {
 
 	protected function verify_oauth($scope = NULL, $realm = NULL)
 	{
-//		verifyAccessToken($scope = NULL, $exit_not_present = TRUE, $exit_invalid = TRUE, $exit_expired = TRUE, $exit_scope = TRUE, $realm = NULL) {
-		$result = $this->_oauth->verifyAccessToken($scope, TRUE, TRUE, TRUE, TRUE, $realm);
+		try
+		{
+			$this->_oauth->verifyAccessToken($scope, FALSE, FALSE, FALSE, FALSE, $realm);
+		}
+		catch (OAuth2_Excption $e)
+		{
+			/**
+			 * @todo  Ensure all the right headers are being sent ..
+			 */
+			switch ($e->getCode())
+			{
+				case OAuth2_Exception::INVALID_REQUEST:
+					throw new HTTP_Exception_400($e->getMessage());
 
+				case OAuth2_Exception::INVALID_TOKEN:
+				case OAuth2_Exception::EXPIRED_TOKEN:
+					throw new HTTP_Exception_401($e->getMessage());
+
+				case OAuth2_Exception::INSUFFICIENT_SCOPE:
+					throw new HTTP_Exception_403($e->getMessage());
+
+				default:
+					throw $e;
+			}
+		}
 	}
 }

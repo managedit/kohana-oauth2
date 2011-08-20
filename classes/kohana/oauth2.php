@@ -1,4 +1,6 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php
+
+defined('SYSPATH') or die('No direct script access.');
 
 include_once Kohana::find_file('vendor', 'OAuth2', 'inc');
 include_once Kohana::find_file('vendor', 'OAuth2Client', 'inc');
@@ -7,7 +9,7 @@ include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
 /**
  *
  *
- * @package    MIP Website
+ * @package    OAuth2
  * @category   Controller
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
@@ -21,6 +23,31 @@ class Kohana_OAuth2 extends OAuth2 {
 		return array(
 			OAUTH2_GRANT_TYPE_AUTH_CODE,
 		);
+	}
+
+	public function verifyAccessToken($scope = NULL, $exit_not_present = TRUE, $exit_invalid = TRUE, $exit_expired = TRUE, $exit_scope = TRUE, $realm = NULL)
+	{
+		$token_param = $this->getAccessTokenParams();
+
+		if ($token_param === FALSE) // Access token was not provided
+			throw new OAuth2_Exception('The request is missing a required parameter, includes an unsupported parameter or parameter value, repeats the same parameter, uses more than one method for including an access token, or is otherwise malformed', OAuth2_Exception::INVALID_REQUEST);
+
+		// Get the stored token data (from the implementing subclass)
+		$token = $this->getAccessToken($token_param);
+
+		if ($token === NULL)
+			throw new OAuth2_Exception('The access token provided is invalid', OAuth2_Exception::INVALID_TOKEN);
+
+		// Check token expiration (I'm leaving this check separated, later we'll fill in better error messages)
+		if (isset($token["expires"]) && time() > $token["expires"])
+			throw new OAuth2_Exception('The access token provided has expired', OAuth2_Exception::EXPIRED_TOKEN);
+
+		// Check scope, if provided
+		// If token doesn't have a scope, it's NULL/empty, or it's insufficient, then throw an error
+		if ($scope && (!isset($token["scope"]) || !$token["scope"] || !$this->checkScope($scope, $token["scope"])))
+			throw new OAuth2_Exception('The request requires higher privileges than provided by the access token', OAuth2_Exception::INSUFFICIENT_SCOPE);
+
+		return TRUE;
 	}
 
 	protected function checkClientCredentials($client_id, $client_secret = NULL)
