@@ -1,8 +1,5 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-include_once Kohana::find_file('vendor', 'OAuth2', 'inc');
-include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
-
 /**
  *
  *
@@ -11,249 +8,305 @@ include_once Kohana::find_file('vendor', 'OAuth2Exception', 'inc');
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class OAuth2_Provider extends Vendor_OAuth2 {
+class OAuth2_Provider {
 
-	public static $db_group = 'default';
-
-	public static function factory()
+	public static function factory(Request $request)
 	{
-		return new OAuth2_Provider();
-	}
-
-	protected function getSupportedGrantTypes()
-	{
-		return array(
-			OAUTH2_GRANT_TYPE_AUTH_CODE,
-			OAUTH2_GRANT_TYPE_REFRESH_TOKEN,
-//			OAUTH2_GRANT_TYPE_USER_CREDENTIALS,
-		);
-	}
-
-	public function verifyAccessToken($scope = NULL, $exit_not_present = TRUE, $exit_invalid = TRUE, $exit_expired = TRUE, $exit_scope = TRUE, $realm = NULL)
-	{
-		$token_param = $this->getAccessTokenParams();
-
-		if ($token_param === FALSE) // Access token was not provided
-			throw new OAuth2_Exception('The request is missing a required parameter, includes an unsupported parameter or parameter value, repeats the same parameter, uses more than one method for including an access token, or is otherwise malformed', NULL, OAuth2_Exception::INVALID_REQUEST);
-
-		// Get the stored token data (from the implementing subclass)
-		$token = $this->getAccessToken($token_param);
-
-		if ($token === NULL)
-			throw new OAuth2_Exception('The access token provided is invalid', NULL, OAuth2_Exception::INVALID_TOKEN);
-
-		// Check token expiration (I'm leaving this check separated, later we'll fill in better error messages)
-		if (isset($token["expires"]) && time() > $token["expires"])
-			throw new OAuth2_Exception('The access token provided has expired', NULL, OAuth2_Exception::EXPIRED_TOKEN);
-
-		// Check scope, if provided
-		// If token doesn't have a scope, it's NULL/empty, or it's insufficient, then throw an error
-		if ($scope && (!isset($token["scope"]) || !$token["scope"] || !$this->checkScope($scope, $token["scope"])))
-			throw new OAuth2_Exception('The request requires higher privileges than provided by the access token', NULL, OAuth2_Exception::INSUFFICIENT_SCOPE);
-
-		return TRUE;
-	}
-
-	protected function checkClientCredentials($client_id, $client_secret = NULL)
-	{
-		$query = DB::select('client_secret')
-			->from('oauth2_clients')
-			->where('client_id', '=', $client_id);
-
-		$result = $query->execute(OAuth2_Provider::$db_group);
-
-		if ($client_secret === NULL)
-			return ($result->count() == 1);
-
-		return $result[0]["client_secret"] == $client_secret;
+		return new OAuth2_Provider($request);
 	}
 
 	/**
-	 * Grant access tokens for basic user credentials.
-	 *
-	 * Check the supplied username and password for validity.
-	 *
-	 * You can also use the $client_id param to do any checks required based
-	 * on a client, if you need that.
-	 *
-	 * Required for OAUTH2_GRANT_TYPE_USER_CREDENTIALS.
-	 *
-	 * @param   $client_id  Client identifier to be check with.
-	 * @param   $username   Username to be check with.
-	 * @param   $password   Password to be check with.
-	 * @return  boolean
-	 *	 TRUE if the username and password are valid, and FALSE if it isn't.
-	 *	 Moreover, if the username and password are valid, and you want to
-	 *	 verify the scope of a user's access, return an associative array
-	 *	 with the scope values as below. We'll check the scope you provide
-	 *	 against the requested scope before providing an access token:
-	 * @code
-	 * return array(
-	 *	 'scope' => <stored scope values (space-separated string)>,
-	 * );
-	 * @endcode
-	 *
-	 * @link    http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2
-	 * @ingroup oauth2_section_4
+	 * @var Request HTTP Request
 	 */
-//	protected function checkUserCredentials($client_id, $username, $password)
-//	{
-//		return Auth::instance()->login($username, $password);
-//	}
+	protected $_request;
 
-	protected function getRedirectUri($client_id)
+	public function __construct(Request $request)
 	{
-		$query = DB::select('redirect_uri')
-			->from('oauth2_clients')
-			->where('client_id', '=', $client_id);
-
-		$result = $query->execute(OAuth2_Provider::$db_group);
-
-		if ($result->count() != 1)
-			return FALSE;
-
-		return $result[0]['redirect_uri'];
+		$this->_request = $request;
 	}
 
-	protected function getAccessToken($oauth_token)
+	/**
+	 *
+	 * @return array
+	 */
+	protected function _get_authorize_params()
 	{
-		$query = DB::select('client_id', 'expires', 'expires')
-			->from('oauth2_tokens')
-			->where('oauth_token', '=', $oauth_token);
+		$input = array();
 
-		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
+		if ($this->_request->method() == Request::GET)
+		{
+			$input = $this->_request->query();
+		}
+		else
+		{
+			$input = $this->_request->post();
+		}
 
-		return (count($result) == 1) ? $result[0] : NULL;
-	}
-
-	protected function setAccessToken($oauth_token, $client_id, $expires, $scope = NULL)
-	{
-		$query = DB::insert('oauth2_tokens', array(
-			'oauth_token',
+		return Arr::extract($input, array(
 			'client_id',
-			'expires',
-			'scope',
-		))->values(array(
-			$oauth_token,
-			$client_id,
-			$expires,
-			$scope,
-		));
-
-		$result = $query->execute();
-	}
-
-	protected function getAuthCode($code)
-	{
-		$query = DB::select('code', 'client_id', 'redirect_uri', 'expires', 'scope')
-			->from('oauth2_auth_codes')
-			->where('code', '=', $code);
-
-		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
-
-		return (count($result) == 1) ? $result[0] : NULL;
-	}
-
-	protected function setAuthCode($code, $client_id, $redirect_uri, $expires, $scope = NULL)
-	{
-		$query = DB::insert('oauth2_auth_codes', array(
-			'code',
-			'client_id',
+			'response_type',
 			'redirect_uri',
-			'expires',
+			'state',
 			'scope',
-		))->values(array(
-			$code,
-			$client_id,
-			$redirect_uri,
-			$expires,
-			$scope,
 		));
-
-		$result = $query->execute();
 	}
 
 	/**
-	 * Grant refresh access tokens.
 	 *
-	 * Retrieve the stored data for the given refresh token.
-	 *
-	 * Required for OAUTH2_GRANT_TYPE_REFRESH_TOKEN.
-	 *
-	 * @param    $refresh_token  Refresh token to be check with.
-	 * @link     http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.4
-	 * @return   array
-	 *	 An associative array as below, and NULL if the refresh_token is
-	 *	 invalid:
-	 *	 - client_id: Stored client identifier.
-	 *	 - expires: Stored expiration unix timestamp.
-	 *	 - scope: (optional) Stored scope values in space-separated string.
-	 *
-	 * @ingroup  oauth2_section_4
+	 * @return array
 	 */
-	protected function getRefreshToken($refresh_token)
+	public function validate_authorize_params()
 	{
-		$query = DB::select('client_id', 'expires', 'expires')
-			->from('oauth2_refresh_tokens')
-			->where('refresh_token', '=', $refresh_token);
+		$request_params = $this->_get_authorize_params();
 
-		$result = $query->execute(OAuth2_Provider::$db_group)->as_array();
+		$validation = Validation::factory($request_params)
+			->rule('client_id',     'not_empty')
+			->rule('client_id',     'regex',     array(':value', OAuth2::CLIENT_ID_REGEXP))
+			->rule('response_type', 'not_empty')
+			->rule('response_type', 'in_array',  array(':value', OAuth2::$supported_response_types))
+			->rule('scope',         'in_array',  array(':value', OAuth2::$supported_scopes))
+			->rule('redirect_uri',  'url');
 
-		return (count($result) == 1) ? $result[0] : NULL;
+		if ( ! $validation->check())
+		{
+			// TODO: Add a message...
+			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
+		}
+
+		// Check we have a valid client
+		$client = Model_OAuth2_Client::find_client($request_params['client_id']);
+
+		if ( ! $client->loaded())
+		{
+			throw new OAuth2_Exception_InvalidClient('Invalid client');
+		}
+
+		// Lookup the redirect_uri if none was supplied in the URL
+		if ( ! Valid::url($request_params['redirect_uri']))
+		{
+			$request_params['redirect_uri'] = $client->redirect_uri;
+
+			// Is the redirect_uri still empty? Error if so..
+			if ( ! Valid::url($request_params['redirect_uri']))
+				throw new OAuth2_Exception_InvalidRequest('\'redirect_uri\' is required');
+		}
+
+		// Check if this client is allowed use this response_type
+		if ( ! in_array($request_params['response_type'], $client->allowed_response_types()))
+			throw new OAuth2_Exception_UnauthorizedClient('You are not allowed use the \':response_type\' response_type', array(
+				':response_type' => $request_params['response_type']
+			));
+
+		return $request_params;
 	}
 
 	/**
-	 * Take the provided refresh token values and store them somewhere.
-	 *
-	 * This function should be the storage counterpart to getRefreshToken().
-	 *
-	 * If storage fails for some reason, we're not currently checking for
-	 * any sort of success/failure, so you should bail out of the script
-	 * and provide a descriptive fail message.
-	 *
-	 * Required for OAUTH2_GRANT_TYPE_REFRESH_TOKEN.
-	 *
-	 * @param   $refresh_token    Refresh token to be stored.
-	 * @param   $client_id        Client identifier to be stored.
-	 * @param   $expires          expires to be stored.
-	 * @param   $scope            Scopes to be stored in space-separated string. (optional)
-	 * @ingroup oauth2_section_4
-	*/
-	protected function setRefreshToken($refresh_token, $client_id, $expires, $scope = NULL)
+	 * @return string Redirect URL
+	 */
+	public function authorize($accepted, $user_id = NULL)
 	{
-		$query = DB::insert('oauth2_refresh_tokens', array(
-			'refresh_token',
+		// Validate the request
+		$request_params = $this->validate_authorize_params();
+
+		// Find the client
+		$client = Model_OAuth2_Client::find_client($request_params['client_id']);
+
+		$url  = $request_params['redirect_uri'];
+
+		if ( ! $accepted)
+		{
+			$url .= 'error='.OAuth2::ERROR_ACCESS_DENIED;
+
+			if (Valid::not_empty($request_params['state']))
+			{
+				$url .= '&state='.urlencode($request_params['state']);
+			}
+		}
+		else
+		{
+			// Generate a code...
+			$auth_code = Model_OAuth2_Auth_Code::create_code($request_params['client_id'], $request_params['redirect_uri'], $user_id, $request_params['scope']);
+
+			if ($request_params['response_type'] == OAuth2::RESPONSE_TYPE_CODE)
+			{
+				$url .= '?code='.urlencode($auth_code->code);
+
+				if (Valid::not_empty($request_params['state']))
+				{
+					$url .= '&state='.urlencode($request_params['state']);
+				}
+
+				if (Valid::not_empty($request_params['scope']))
+				{
+					$url .= '&scope='.urlencode($request_params['scope']);
+				}
+			}
+			else if ($request_params['response_type'] == OAuth2::RESPONSE_TYPE_TOKEN)
+			{
+				// Generate an access token
+				$access_token = Model_OAuth2_Access_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
+
+				$url .= '#access_token='.$access_token->access_token.'&token_type='.OAuth2::TOKEN_TYPE_BEARER;
+
+				if (Valid::not_empty($request_params['state']))
+				{
+					$url .= '&state='.urlencode($request_params['state']);
+				}
+
+				if (Valid::not_empty($request_params['scope']))
+				{
+					$url .= '&scope='.urlencode($request_params['scope']);
+				}
+			}
+			else
+			{
+				throw new OAuth2_Exception_InvalidRequest('Unsupported response_type');
+			}
+
+		}
+
+		// Return the redirect URL
+		return $url;
+	}
+
+	/**
+	 *
+	 * @return array
+	 */
+	protected function _get_token_params()
+	{
+		$input = array();
+
+		if ($this->_request->method() == Request::GET)
+		{
+			$input = $this->_request->query();
+		}
+		else
+		{
+			$input = $this->_request->post();
+		}
+
+		return Arr::extract($input, array(
 			'client_id',
-			'expires',
-			'scope',
-		))->values(array(
-			$refresh_token,
-			$client_id,
-			$expires,
-			$scope,
+			'client_secret',
+			'grant_type',    // refresh_token, authorization_code, password, client_credentials
+			'refresh_token', // refresh_token,
+			'code',          // authorization_code,
+			'username',      // password,
+			'password',      // password,
+			'scope',         // refresh_token, password, client_credentials
+			'redirect_uri',  // authorization_code,
 		));
-
-		$result = $query->execute();
 	}
 
-	/**
-	 * Expire a used refresh token.
-	 *
-	 * This is not explicitly required in the spec, but is almost implied.
-	 * After granting a new refresh token, the old one is no longer useful and
-	 * so should be forcibly expired in the data store so it can't be used again.
-	 *
-	 * If storage fails for some reason, we're not currently checking for
-	 * any sort of success/failure, so you should bail out of the script
-	 * and provide a descriptive fail message.
-	 *
-	 * @param    $refresh_token    Refresh token to be expirse.
-	 * @ingroup  oauth2_section_4
-	 */
-	protected function unsetRefreshToken($refresh_token)
+	public function validate_token_params()
 	{
-		DB::delete('oauth2_refresh_tokens')
-			->where('refresh_token', '=', $refresh_token)
-			->execute();
+		$request_params = $this->_get_token_params();
+
+		$validation = Validation::factory($request_params)
+			->rule('client_id',     'not_empty')
+			->rule('client_id',     'regex',    array(':value', OAuth2::CLIENT_ID_REGEXP))
+			->rule('client_secret', 'not_empty')
+			->rule('grant_type',    'not_empty')
+			->rule('grant_type',    'in_array', array(':value', OAuth2::$supported_grant_types))
+//			->rule('refresh_token', 'uuid'),
+//			->rule('code',          'uuid'),
+			->rule('scope',         'in_array', array(':value', OAuth2::$supported_scopes))
+			->rule('redirect_uri',  'url');
+
+		if ( ! $validation->check())
+		{
+			// TODO: Add a better message...
+			echo Debug::vars($validation->errors());
+			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
+		}
+
+		// Find the client
+		$client = Model_OAuth2_Client::find_client($request_params['client_id'], $request_params['client_secret']);
+
+		if ( ! $client->loaded())
+			throw new OAuth2_Exception_UnauthorizedClient('Unauthorized Client');
+
+
+		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_AUTH_CODE)
+		{
+			if ( ! Valid::not_empty($request_params['code']))
+			{
+				throw new OAuth2_Exception_InvalidGrant('code is required with the '.OAuth2::GRANT_TYPE_AUTH_CODE.' grant_type');
+			}
+
+			// Ensure the code is still valid, and that it was issued to the requesting client_id
+			if ( ! Model_OAuth2_Auth_Code::validate_code($request_params['code'], $client->client_id))
+				throw new OAuth2_Exception_InvalidGrant('Invalid Grant');
+
+			if ( ! Valid::not_empty($request_params['redirect_uri']))
+			{
+				throw new OAuth2_Exception_InvalidRequest('redirect_uri is required with the '.OAuth2::GRANT_TYPE_AUTH_CODE.' grant_type');
+			}
+
+			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code']);
+
+			if ($auth_code->redirect_uri !== $request_params['redirect_uri'])
+			{
+				throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
+			}
+
+			if ($auth_code->scope !== $request_params['scope'])
+			{
+				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
+			}
+		}
+
+		return $request_params;
+	}
+
+	public function token()
+	{
+
+		// Validate the request
+		$request_params = $this->validate_token_params();
+
+		// Response Params
+		$response_params = array(
+			'token_type'    => OAuth2::TOKEN_TYPE_BEARER,
+			'expires_in'    => Model_OAuth2_Access_Token::$lifetime,
+		);
+
+		$client = Model_OAuth2_Client::find_client($request_params['client_id'], $request_params['client_secret']);
+
+		$user_id = NULL;
+
+		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_AUTH_CODE)
+		{
+			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code']);
+			$user_id = $auth_code->user_id;
+		}
+		else
+		{
+			throw new OAuth2_Exception_UnsupportedGrantType('Unsupported Grant Type');
+		}
+
+
+		// Generate an access token
+		$access_token = Model_OAuth2_Access_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
+
+		$response_params['access_token'] = $access_token->access_token;
+
+		// If refreh tokens are supported, add one.
+		if (in_array(OAuth2::GRANT_TYPE_REFRESH_TOKEN, OAuth2::$supported_grant_types))
+		{
+			// Generate a refresh token
+			$refresh_token = Model_OAuth2_Refresh_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
+
+			$response_params['refresh_token'] = $refresh_token->refresh_token;
+		}
+
+		// Add scope if needed
+		if (Valid::not_empty($request_params['scope']))
+		{
+			$response_params['scope'] = $request_params['scope'];
+		}
+
+		return json_encode($response_params);
 	}
 }

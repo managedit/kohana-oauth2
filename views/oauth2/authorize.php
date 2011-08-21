@@ -1,5 +1,5 @@
 <html>
-	<head>Authorize</head>
+	<head><?=$user->email ?> Authorize to ClientID <?=$client->id ?></head>
 	<body>
 		<form method="post" action="">
 			<?php foreach ($auth_params as $k => $v): ?>

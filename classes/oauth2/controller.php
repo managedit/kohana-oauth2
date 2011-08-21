@@ -14,6 +14,7 @@ class OAuth2_Controller extends Controller {
 	 * @var Kohana_OAuth2
 	 */
 	protected $_oauth;
+	protected $_oauth_new;
 
 	/**
 	 * @var boolean
@@ -23,6 +24,7 @@ class OAuth2_Controller extends Controller {
 	public function before()
 	{
 		$this->_oauth = OAuth2_Provider::factory();
+		$this->_oauth_old = OAuth2_ProviderOld::factory();
 
 		if ($this->_verify_oauth)
 		{
@@ -34,7 +36,7 @@ class OAuth2_Controller extends Controller {
 	{
 		try
 		{
-			$this->_oauth->verifyAccessToken($scope, FALSE, FALSE, FALSE, FALSE, $realm);
+			$this->_oauth_old->verifyAccessToken($scope, FALSE, FALSE, FALSE, FALSE, $realm);
 		}
 		catch (OAuth2_Excption $e)
 		{

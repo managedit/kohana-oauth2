@@ -8,4 +8,6 @@
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class OAuth2_Exception extends Kohana_Exception {}
+class OAuth2_Exception_InvalidGrant extends OAuth2_Exception {
+	protected $_error = OAuth2::ERROR_INVALID_GRANT;
+}
