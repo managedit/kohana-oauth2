@@ -8,9 +8,9 @@
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class Controller_OAuth2 extends Controller {
+class Controller_OAuth2_Endpoints extends Controller {
 	/**
-	 * @var OAuth2
+	 * @var OAuth2_Provider
 	 */
 	protected $_oauth;
 

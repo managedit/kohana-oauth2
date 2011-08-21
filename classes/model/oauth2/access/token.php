@@ -16,7 +16,7 @@ class Model_OAuth2_Access_Token extends ORM {
 	public static $lifetime = 3600;
 
 	/**
-	 * Find a token
+	 * Find an access token
 	 *
 	 * @param  string  $oauth_token
 	 * @return Model_OAuth2_Token
@@ -24,7 +24,8 @@ class Model_OAuth2_Access_Token extends ORM {
 	public static function find_token($access_token, $client_id = NULL)
 	{
 		$token = ORM::factory('oauth2_access_token')
-			->where('access_token', '=', $access_token);
+			->where('access_token', '=', $access_token)
+			->where('expires', '>=', time());
 
 		if ($client_id !== NULL)
 		{
@@ -35,7 +36,7 @@ class Model_OAuth2_Access_Token extends ORM {
 	}
 
 	/**
-	 * Create a token
+	 * Create an access token
 	 *
 	 * @param  string  $client_id
 	 * @param  string  $scope
@@ -57,7 +58,7 @@ class Model_OAuth2_Access_Token extends ORM {
 	}
 
 	/**
-	 * Deletes a token
+	 * Deletes an access token
 	 */
 	public static function delete_token($access_token)
 	{

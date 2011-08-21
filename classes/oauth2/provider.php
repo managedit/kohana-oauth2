@@ -68,18 +68,13 @@ class OAuth2_Provider {
 			->rule('redirect_uri',  'url');
 
 		if ( ! $validation->check())
-		{
-			// TODO: Add a message...
 			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
-		}
 
 		// Check we have a valid client
 		$client = Model_OAuth2_Client::find_client($request_params['client_id']);
 
 		if ( ! $client->loaded())
-		{
 			throw new OAuth2_Exception_InvalidClient('Invalid client');
-		}
 
 		// Lookup the redirect_uri if none was supplied in the URL
 		if ( ! Valid::url($request_params['redirect_uri']))
@@ -216,11 +211,7 @@ class OAuth2_Provider {
 			->rule('redirect_uri',  'url');
 
 		if ( ! $validation->check())
-		{
-			// TODO: Add a better message...
-			echo Debug::vars($validation->errors());
 			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
-		}
 
 		// Find the client
 		$client = Model_OAuth2_Client::find_client($request_params['client_id'], $request_params['client_secret']);
@@ -232,30 +223,22 @@ class OAuth2_Provider {
 		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_AUTH_CODE)
 		{
 			if ( ! Valid::not_empty($request_params['code']))
-			{
 				throw new OAuth2_Exception_InvalidGrant('code is required with the '.OAuth2::GRANT_TYPE_AUTH_CODE.' grant_type');
-			}
-
-			// Ensure the code is still valid, and that it was issued to the requesting client_id
-			if ( ! Model_OAuth2_Auth_Code::validate_code($request_params['code'], $client->client_id))
-				throw new OAuth2_Exception_InvalidGrant('Invalid Grant');
 
 			if ( ! Valid::not_empty($request_params['redirect_uri']))
-			{
 				throw new OAuth2_Exception_InvalidRequest('redirect_uri is required with the '.OAuth2::GRANT_TYPE_AUTH_CODE.' grant_type');
-			}
 
-			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code']);
+			// Lookup the auth code
+			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code'], $client->client_id);
+
+			if ( ! $auth_code->loaded())
+				throw new OAuth2_Exception_InvalidGrant('Unknown code');
 
 			if ($auth_code->redirect_uri !== $request_params['redirect_uri'])
-			{
 				throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
-			}
 
 			if ($auth_code->scope !== $request_params['scope'])
-			{
 				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
-			}
 		}
 
 		return $request_params;
@@ -309,5 +292,55 @@ class OAuth2_Provider {
 		}
 
 		return json_encode($response_params);
+	}
+
+	/**
+	 *
+	 * @return array
+	 */
+	protected function _get_verify_token_params()
+	{
+		$input = array();
+
+		if ($this->_request->method() == Request::GET)
+		{
+			$input = $this->_request->query();
+		}
+		else
+		{
+			$input = $this->_request->post();
+		}
+
+		return Arr::extract($input, array(
+			'access_token',
+		));
+	}
+
+	public function validate_verify_token_params()
+	{
+		$request_params = $this->_get_verify_token_params();
+
+		$validation = Validation::factory($request_params)
+			->rule('access_token',  'not_empty');
+//			->rule('access_token',  'uuid');
+
+		if ( ! $validation->check())
+			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
+
+		$access_token = Model_OAuth2_Access_Token::find_token($request_params['access_token']);
+
+		if ( ! $access_token->loaded())
+			throw new OAuth2_Exception_InvalidToken('Invalid Access Token');
+
+		return $request_params;
+	}
+
+	public function verify_token($scope = NULL)
+	{
+		$request_params = $this->validate_verify_token_params();
+
+		$access_token = Model_OAuth2_Access_Token::find_token($request_params['access_token']);
+
+		return array($access_token->client_id, $access_token->user_id);
 	}
 }

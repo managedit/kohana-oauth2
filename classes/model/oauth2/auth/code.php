@@ -25,28 +25,10 @@ class Model_OAuth2_Auth_Code extends ORM {
 	{
 		$code = ORM::factory('oauth2_auth_code')
 			->where('code', '=', $code)
+			->where('expires', '>=', time())
 			->find();
 
 		return $code;
-	}
-
-	/**
-	 * Validate an auth code
-	 *
-	 * @param  string  $code
-	 * @return Model_OAuth2_Auth_Code
-	 */
-	public static function validate_code($code, $client_id = NULL)
-	{
-		$code = Model_OAuth2_Auth_Code::find_code($code, $client_id);
-
-		if ( ! $code->loaded())
-			return FALSE;
-
-		if ($code->expires <= time())
-			return FALSE;
-
-		return TRUE;
 	}
 
 	/**

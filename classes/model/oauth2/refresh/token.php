@@ -21,13 +21,18 @@ class Model_OAuth2_Refresh_Token extends ORM {
 	 * @param  string  $refresh_token
 	 * @return Model_OAuth2_Refresh_Token
 	 */
-	public static function find_token($refresh_token)
+	public static function find_token($refresh_token, $client_id = NULL)
 	{
 		$token = ORM::factory('oauth2_refresh_token')
 			->where('refresh_token', '=', $refresh_token)
-			->find();
+			->where('expires', '>=', time());
 
-		return $token;
+		if ($client_id !== NULL)
+		{
+			$token->where('client_id', '=', $client_id);
+		}
+
+		return $token->find();
 	}
 
 	/**
