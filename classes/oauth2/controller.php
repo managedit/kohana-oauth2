@@ -8,7 +8,7 @@
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class OAuth2_Controller extends Controller {
+abstract class OAuth2_Controller extends Controller {
 
 	/**
 	 * @var OAuth2_Provider
