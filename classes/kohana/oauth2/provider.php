@@ -234,11 +234,12 @@ class Kohana_OAuth2_Provider {
 			if ( ! $auth_code->loaded())
 				throw new OAuth2_Exception_InvalidGrant('Unknown or expired code');
 
+			if ($auth_code->scope !== $request_params['scope'])
+				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
+
 			if ($auth_code->redirect_uri !== $request_params['redirect_uri'])
 				throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
 
-			if ($auth_code->scope !== $request_params['scope'])
-				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
 		}
 		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
 		{
@@ -250,13 +251,39 @@ class Kohana_OAuth2_Provider {
 
 			if ( ! $refresh_token->loaded())
 				throw new OAuth2_Exception_InvalidGrant('Unknown or expired refresh token');
+
+			if ($refresh_token->scope !== $request_params['scope'])
+				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
 		}
 		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
 		{
 			// Nothing special Needed
 		}
+		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_PASSWORD)
+		{
+			if ( ! Valid::not_empty($request_params['username']))
+				throw new OAuth2_Exception_InvalidRequest('username is required with the '.OAuth2::GRANT_TYPE_PASSWORD.' grant_type');
+
+			if ( ! Valid::not_empty($request_params['password']))
+				throw new OAuth2_Exception_InvalidRequest('password is required with the '.OAuth2::GRANT_TYPE_PASSWORD.' grant_type');
+
+			$this->_validate_user($request_params['username'], $request_params['password']);
+		}
+
 
 		return $request_params;
+	}
+
+	/**
+	 * Validates a username and password are correct, returns a user_id.
+	 * @param string $username
+	 * @param string $password
+	 *
+	 * @return string
+	 */
+	protected function _validate_user($username, $password)
+	{
+		throw new OAuth2_Exception_UnsupportedGrantType('Unsupported Grant Type (_validate_user needs to be implemented)');
 	}
 
 	public function token()
@@ -288,6 +315,10 @@ class Kohana_OAuth2_Provider {
 		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_CLIENT_CREDENTIALS)
 		{
 			$user_id = NULL;
+		}
+		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_PASSWORD)
+		{
+			$user_id = $this->_validate_user($request_params['username'], $request_params['password']);;
 		}
 		else
 		{
