@@ -108,6 +108,7 @@ class OAuth2_Provider {
 		// Validate the request
 		$request_params = $this->validate_authorize_params();
 
+
 		// Find the client
 		$client = Model_OAuth2_Client::find_client($request_params['client_id']);
 

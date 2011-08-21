@@ -11,10 +11,9 @@
 class OAuth2_Controller extends Controller {
 
 	/**
-	 * @var Kohana_OAuth2
+	 * @var OAuth2_Provider
 	 */
 	protected $_oauth;
-	protected $_oauth_new;
 
 	/**
 	 * @var boolean
@@ -24,7 +23,6 @@ class OAuth2_Controller extends Controller {
 	public function before()
 	{
 		$this->_oauth = OAuth2_Provider::factory();
-		$this->_oauth_old = OAuth2_ProviderOld::factory();
 
 		if ($this->_verify_oauth)
 		{
@@ -34,30 +32,30 @@ class OAuth2_Controller extends Controller {
 
 	protected function verify_oauth($scope = NULL, $realm = NULL)
 	{
-		try
-		{
-			$this->_oauth_old->verifyAccessToken($scope, FALSE, FALSE, FALSE, FALSE, $realm);
-		}
-		catch (OAuth2_Excption $e)
-		{
-			/**
-			 * @todo  Ensure all the right headers are being sent ..
-			 */
-			switch ($e->getCode())
-			{
-				case OAuth2_Exception::INVALID_REQUEST:
-					throw new HTTP_Exception_400($e->getMessage());
-
-				case OAuth2_Exception::INVALID_TOKEN:
-				case OAuth2_Exception::EXPIRED_TOKEN:
-					throw new HTTP_Exception_401($e->getMessage());
-
-				case OAuth2_Exception::INSUFFICIENT_SCOPE:
-					throw new HTTP_Exception_403($e->getMessage());
-
-				default:
-					throw $e;
-			}
-		}
+//		try
+//		{
+//			$this->_oauth_old->verifyAccessToken($scope, FALSE, FALSE, FALSE, FALSE, $realm);
+//		}
+//		catch (OAuth2_Excption $e)
+//		{
+//			/**
+//			 * @todo  Ensure all the right headers are being sent ..
+//			 */
+//			switch ($e->getCode())
+//			{
+//				case OAuth2_Exception::INVALID_REQUEST:
+//					throw new HTTP_Exception_400($e->getMessage());
+//
+//				case OAuth2_Exception::INVALID_TOKEN:
+//				case OAuth2_Exception::EXPIRED_TOKEN:
+//					throw new HTTP_Exception_401($e->getMessage());
+//
+//				case OAuth2_Exception::INSUFFICIENT_SCOPE:
+//					throw new HTTP_Exception_403($e->getMessage());
+//
+//				default:
+//					throw $e;
+//			}
+//		}
 	}
 }

@@ -3,7 +3,9 @@
 	<body>
 		<form method="post" action="">
 			<?php foreach ($auth_params as $k => $v): ?>
-				<input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
+				<?php if ($v !== NULL): ?>
+					<input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
+				<?php endif; ?>
 			<?php endforeach; ?>
 			Do you authorize the app to do its thing?
 			<p>
