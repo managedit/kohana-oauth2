@@ -276,7 +276,7 @@ class Kohana_OAuth2_Provider {
 			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code']);
 			$user_id = $auth_code->user_id;
 		}
-		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
+		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
 		{
 			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token']);
 			$user_id = $refresh_token->user_id;
