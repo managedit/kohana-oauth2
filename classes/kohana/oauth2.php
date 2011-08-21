@@ -29,7 +29,7 @@ class Kohana_OAuth2 {
 	public static $supported_grant_types = array(
 		OAuth2::GRANT_TYPE_AUTH_CODE,
 //		OAuth2::GRANT_TYPE_PASSWORD,
-//		OAuth2::GRANT_TYPE_REFRESH_TOKEN,
+		OAuth2::GRANT_TYPE_REFRESH_TOKEN,
 //		OAuth2::GRANT_TYPE_CLIENT_CREDENTIALS,
 	);
 

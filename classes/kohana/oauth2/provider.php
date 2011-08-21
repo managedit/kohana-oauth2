@@ -232,13 +232,24 @@ class Kohana_OAuth2_Provider {
 			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code'], $client->client_id);
 
 			if ( ! $auth_code->loaded())
-				throw new OAuth2_Exception_InvalidGrant('Unknown code');
+				throw new OAuth2_Exception_InvalidGrant('Unknown or expired code');
 
 			if ($auth_code->redirect_uri !== $request_params['redirect_uri'])
 				throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
 
 			if ($auth_code->scope !== $request_params['scope'])
 				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
+		}
+		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
+		{
+			if ( ! Valid::not_empty($request_params['refresh_token']))
+				throw new OAuth2_Exception_InvalidGrant('refresh_token is required with the '.OAuth2::GRANT_TYPE_REFRESH_TOKEN.' grant_type');
+
+			// Lookup the refresh token
+			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token'], $client->client_id);
+
+			if ( ! $refresh_token->loaded())
+				throw new OAuth2_Exception_InvalidGrant('Unknown or expired refresh token');
 		}
 
 		return $request_params;
@@ -264,6 +275,11 @@ class Kohana_OAuth2_Provider {
 		{
 			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code']);
 			$user_id = $auth_code->user_id;
+		}
+		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
+		{
+			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token']);
+			$user_id = $refresh_token->user_id;
 		}
 		else
 		{
