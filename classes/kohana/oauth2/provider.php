@@ -251,6 +251,10 @@ class Kohana_OAuth2_Provider {
 			if ( ! $refresh_token->loaded())
 				throw new OAuth2_Exception_InvalidGrant('Unknown or expired refresh token');
 		}
+		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
+		{
+			// Nothing special Needed
+		}
 
 		return $request_params;
 	}
@@ -280,6 +284,10 @@ class Kohana_OAuth2_Provider {
 		{
 			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token']);
 			$user_id = $refresh_token->user_id;
+		}
+		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_CLIENT_CREDENTIALS)
+		{
+			$user_id = NULL;
 		}
 		else
 		{
