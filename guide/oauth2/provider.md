@@ -138,7 +138,7 @@ Something along the lines of this:
 
 		public function action_index()
 		{
-			$user = Auth::instance()->get_iser();
+			$user = Auth::instance()->get_user();
 
 			$this->response->body(json_encode($user));
 		}
