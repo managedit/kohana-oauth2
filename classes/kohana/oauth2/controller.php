@@ -26,7 +26,7 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 	public function before()
 	{
 		parent::before();
-		
+
 		$this->_oauth = OAuth2_Provider::factory($this->request);
 
 		if ($this->_verify_oauth)
@@ -42,4 +42,5 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 		$this->_client_id = $client_id;
 		$this->_user_id = $user_id;
 	}
+
 }
