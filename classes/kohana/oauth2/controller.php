@@ -15,13 +15,20 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 	 */
 	protected $_oauth;
 
-	protected $_client_id = NULL;
-	protected $_user_id = NULL;
+	/**
+	 * @var string Client ID
+	 */
+	protected $_oauth_client_id = NULL;
 
 	/**
-	 * @var boolean
+	 * @var string User ID
 	 */
-	protected $_verify_oauth = TRUE;
+	protected $_oauth_user_id = NULL;
+
+	/**
+	 * @var boolean Verify OAuth token automatically?
+	 */
+	protected $_oauth_verify = TRUE;
 
 	public function before()
 	{
@@ -29,18 +36,18 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 
 		$this->_oauth = OAuth2_Provider::factory($this->request);
 
-		if ($this->_verify_oauth)
+		if ($this->_oauth_verify)
 		{
-			$this->verify_token();
+			$this->_oauth_verify_token();
 		}
 	}
 
-	protected function verify_token($scope = NULL)
+	protected function _oauth_verify_token($scope = NULL)
 	{
 		list($client_id, $user_id) = $this->_oauth->verify_token($scope);
 
-		$this->_client_id = $client_id;
-		$this->_user_id = $user_id;
+		$this->_oauth_client_id = $client_id;
+		$this->_oauth_user_id = $user_id;
 	}
 
 }
