@@ -30,18 +30,7 @@ abstract class Kohana_Controller_OAuth2_Endpoints extends Controller {
 	 */
 	public function action_authorize()
 	{
-		try
-		{
-			// Assume the user agreed, provide a NULL user_id and authorize.
-			$redirect_url = $this->_oauth->authorize(TRUE, NULL);
-
-			// Redirect the user back to the application
-			$this->request->redirect($redirect_url);
-		}
-		catch (OAuth2_Exception $e)
-		{
-			throw new HTTP_Exception_400($e->getMessage());
-		}
+		throw new Kohana_Exception('The Controller_OAuth2_Endpoints::action_authorize() method needs to be implemented');
 	}
 
 	/**
