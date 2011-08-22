@@ -21,6 +21,12 @@ class Kohana_Controller_OAuth2_Endpoints extends Controller {
 		$this->_oauth = OAuth2_Provider::factory($this->request);
 	}
 
+	/**
+	 * This action authenticates the resource owner and establishes whether
+	 * the resource owner grants or denies the client's access request.
+	 *
+	 * It likely you WILL need to extend/replace this action.
+	 */
 	public function action_authorize()
 	{
 		try
@@ -73,6 +79,8 @@ class Kohana_Controller_OAuth2_Endpoints extends Controller {
 	/**
 	 * This action issues access and refresh tokens and is called only
 	 * by the 3rd party. All output should be JSON.
+	 *
+	 * Its unlikely you will need to extend/replace this action.
 	 */
 	public function action_token()
 	{
