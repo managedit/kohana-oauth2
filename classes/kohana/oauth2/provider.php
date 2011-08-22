@@ -205,8 +205,8 @@ class Kohana_OAuth2_Provider {
 			->rule('client_secret', 'not_empty')
 			->rule('grant_type',    'not_empty')
 			->rule('grant_type',    'in_array', array(':value', OAuth2::$supported_grant_types))
-//			->rule('refresh_token', 'uuid'),
-//			->rule('code',          'uuid'),
+			->rule('refresh_token', 'uuid::valid')
+			->rule('code',          'uuid::valid')
 			->rule('scope',         'in_array', array(':value', OAuth2::$supported_scopes))
 			->rule('redirect_uri',  'url');
 
@@ -383,8 +383,8 @@ class Kohana_OAuth2_Provider {
 		$request_params = $this->_get_verify_token_params();
 
 		$validation = Validation::factory($request_params)
-			->rule('access_token',  'not_empty');
-//			->rule('access_token',  'uuid');
+			->rule('access_token',  'not_empty')
+			->rule('access_token',  'uuid::valid');
 
 		if ( ! $validation->check())
 			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
