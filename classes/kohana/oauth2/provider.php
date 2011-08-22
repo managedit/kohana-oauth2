@@ -366,6 +366,13 @@ class Kohana_OAuth2_Provider {
 			$input = $this->_request->post();
 		}
 
+		$authorization_header = $this->_request->headers('Authorization');
+
+		if (preg_match('/^Bearer (.*)/i', $authorization_header, $matches))
+		{
+			$input['access_token'] = $matches[1];
+		}
+
 		return Arr::extract($input, array(
 			'access_token',
 		));
