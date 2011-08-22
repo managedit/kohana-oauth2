@@ -1,5 +1,12 @@
-<?php defined('SYSPATH') or die('No direct script access.');/**
+<?php defined('SYSPATH') or die('No direct script access.');
+/**
  * Initial Schema
+ *
+ * @package    OAuth2
+ * @category   Migration
+ * @author     Managed I.T.
+ * @copyright  (c) 2011 Managed I.T.
+ * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Migration_Oauth_20110822174823 extends Minion_Migration_Base {
 

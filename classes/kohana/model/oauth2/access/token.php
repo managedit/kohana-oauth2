@@ -7,6 +7,7 @@
  * @category   Model
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
+ * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Access_Token extends ORM {
 

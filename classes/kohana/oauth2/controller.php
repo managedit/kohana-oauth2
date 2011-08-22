@@ -7,6 +7,7 @@
  * @category   Controller
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
+ * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 abstract class Kohana_OAuth2_Controller extends Controller {
 
