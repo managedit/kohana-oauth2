@@ -51,7 +51,7 @@ class Kohana_Controller_OAuth2_Endpoints extends Controller {
 				// Validate custom form stuff .. whatever
 				$redirect_url = $this->_oauth->authorize($accepted, $user->pk());
 
-				echo $redirect_url; exit; /* Temp Hack */
+				// Redirect the user back to the application
 				$this->request->redirect($redirect_url);
 			}
 
