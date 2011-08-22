@@ -49,8 +49,6 @@ class Kohana_Controller_OAuth2_Endpoints extends Controller {
 				$accepted = TRUE;
 
 				// Validate custom form stuff .. whatever
-
-				// authorize always ends up in a rediret .. no if's no but's..
 				$redirect_url = $this->_oauth->authorize($accepted, $user->pk());
 
 				echo $redirect_url; exit; /* Temp Hack */
