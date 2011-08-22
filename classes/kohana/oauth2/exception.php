@@ -8,4 +8,24 @@
  * @author     Managed I.T.
  * @copyright  (c) 2011 Managed I.T.
  */
-class Kohana_OAuth2_Exception extends Kohana_Exception {}
+class Kohana_OAuth2_Exception extends Kohana_Exception {
+	protected $_error = NULL;
+
+	public function getError()
+	{
+		return $this->_error;
+	}
+
+	public function getJsonError()
+	{
+		return json_encode(array(
+			'error'             => $this->getError(),
+			'error_description' => $this->getMessage(),
+		));
+	}
+
+	public function __toString()
+	{
+		return $this->getJsonError();
+	}
+}

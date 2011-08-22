@@ -85,6 +85,11 @@ class Kohana_OAuth2_Provider {
 			if ( ! Valid::url($request_params['redirect_uri']))
 				throw new OAuth2_Exception_InvalidRequest('\'redirect_uri\' is required');
 		}
+		else if ($client->redirect_uri != $request_params['redirect_uri'])
+		{
+			throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
+		}
+
 
 		// Check if this client is allowed use this response_type
 		if ( ! in_array($request_params['response_type'], $client->allowed_response_types()))
@@ -223,10 +228,14 @@ class Kohana_OAuth2_Provider {
 		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_AUTH_CODE)
 		{
 			if ( ! Valid::not_empty($request_params['code']))
-				throw new OAuth2_Exception_InvalidGrant('code is required with the '.OAuth2::GRANT_TYPE_AUTH_CODE.' grant_type');
+				throw new OAuth2_Exception_InvalidGrant('code is required with the \':grant_type\' grant_type', array(
+					':grant_type' => OAuth2::GRANT_TYPE_AUTH_CODE,
+				));
 
 			if ( ! Valid::not_empty($request_params['redirect_uri']))
-				throw new OAuth2_Exception_InvalidRequest('redirect_uri is required with the '.OAuth2::GRANT_TYPE_AUTH_CODE.' grant_type');
+				throw new OAuth2_Exception_InvalidGrant('redirect_uri is required with the \':grant_type\' grant_type', array(
+					':grant_type' => OAuth2::GRANT_TYPE_AUTH_CODE,
+				));
 
 			// Lookup the auth code
 			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code'], $client->client_id);
@@ -244,7 +253,9 @@ class Kohana_OAuth2_Provider {
 		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
 		{
 			if ( ! Valid::not_empty($request_params['refresh_token']))
-				throw new OAuth2_Exception_InvalidGrant('refresh_token is required with the '.OAuth2::GRANT_TYPE_REFRESH_TOKEN.' grant_type');
+				throw new OAuth2_Exception_InvalidGrant('refresh_token is required with the \':grant_type\' grant_type', array(
+					':grant_type' => OAuth2::GRANT_TYPE_REFRESH_TOKEN,
+				));
 
 			// Lookup the refresh token
 			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token'], $client->client_id);
@@ -262,10 +273,14 @@ class Kohana_OAuth2_Provider {
 		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_PASSWORD)
 		{
 			if ( ! Valid::not_empty($request_params['username']))
-				throw new OAuth2_Exception_InvalidRequest('username is required with the '.OAuth2::GRANT_TYPE_PASSWORD.' grant_type');
+				throw new OAuth2_Exception_InvalidGrant('username is required with the \':grant_type\' grant_type', array(
+					':grant_type' => OAuth2::GRANT_TYPE_PASSWORD,
+				));
 
 			if ( ! Valid::not_empty($request_params['password']))
-				throw new OAuth2_Exception_InvalidRequest('password is required with the '.OAuth2::GRANT_TYPE_PASSWORD.' grant_type');
+				throw new OAuth2_Exception_InvalidGrant('password is required with the \':grant_type\' grant_type', array(
+					':grant_type' => OAuth2::GRANT_TYPE_PASSWORD,
+				));
 
 			$this->_validate_user($request_params['username'], $request_params['password']);
 		}
@@ -320,11 +335,6 @@ class Kohana_OAuth2_Provider {
 		{
 			$user_id = $this->_validate_user($request_params['username'], $request_params['password']);;
 		}
-		else
-		{
-			throw new OAuth2_Exception_UnsupportedGrantType('Unsupported Grant Type');
-		}
-
 
 		// Generate an access token
 		$access_token = Model_OAuth2_Access_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
