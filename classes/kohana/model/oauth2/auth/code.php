@@ -48,10 +48,14 @@ class Kohana_Model_OAuth2_Auth_Code
 			->from(Model_OAuth2_Auth_Code::$_table_name)
 			->where('code', '=', $code)
 			->where('expires', '>=', time())
-			->as_object('Model_OAuth2_Auth_Code', array(array('loaded' => TRUE, 'saved' => TRUE)))
+			->as_object('Model_OAuth2_Auth_Code', array(
+				array('loaded' => TRUE, 'saved' => TRUE)
+			))
 			->execute();
 
-		return ($result->count() > 0) ? $result->current() : new Model_OAuth2_Auth_Code();
+		return ($result->count() > 0)
+			? $result->current()
+			: new Model_OAuth2_Auth_Code;
 	}
 
 	/**
@@ -68,17 +72,20 @@ class Kohana_Model_OAuth2_Auth_Code
 		$client_id, $redirect_uri, $user_id = NULL, $scope = NULL
 	)
 	{
-		$keys = array(
-			'code', 'expires', 'client_id', 'user_id', 'redirect_uri', 'scope'
+		$code = new Model_OAuth2_Access_Token(
+			array(
+				'_data' => array(
+					'code' => UUID::v4(),
+					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
+					'client_id' => $client_id,
+					'user_id' => $user_id,
+					'redirect_uri' => $redirect_uri,
+					'scope' => $scope
+				)
+			)
 		);
-		$vals = array(
-			UUID::v4(),
-			time() + Model_OAuth2_Access_Token::$lifetime,
-			$client_id,
-			$user_id,
-			$redirect_uri,
-			$scope
-		);
+
+		$code->save();
 
 		return $code;
 	}

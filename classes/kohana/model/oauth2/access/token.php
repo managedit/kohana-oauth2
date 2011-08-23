@@ -10,11 +10,17 @@
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Access_Token
-	extends Model_Database
-	implements Model_OAuth2_Interface_Access_Token,
-		Kohana_Model_OAuth2_Interface_Oauth
+	extends Model_OAuth2
+	implements Model_OAuth2_Interface_Access_Token
 {
 	$this->_table = 'oauth2_access_tokens';
+
+	/**
+	 * @var  array Array of field names
+	 */
+	protected $_fields = array(
+		'id', 'access_token', 'expires', 'client_id', 'user_id', 'scope'
+	);
 
 	/**
 	 * @var  integer  Token Lifetime in seconds
@@ -40,7 +46,9 @@ class Kohana_Model_OAuth2_Access_Token
 			$query->where('client_id', '=', $client_id);
 		}
 
-		$result = $query->as_object()->execute();
+		$result = $query->as_object('Model_OAuth2_Access_Token', array(
+			array('loaded' => TRUE, 'saved' => TRUE)
+		))->execute();
 
 		if (count($result))
 		{
@@ -48,7 +56,7 @@ class Kohana_Model_OAuth2_Access_Token
 		}
 		else
 		{
-			return null;
+			return new Model_OAuth2_Access_Token;
 		}
 	}
 
@@ -61,37 +69,36 @@ class Kohana_Model_OAuth2_Access_Token
 	 * 
 	 * @return stdClass
 	 */
-	public static function create_token($client_id, $user_id = NULL, $scope = NULL)
+	public static function create_token(
+		$client_id, $user_id = NULL, $scope = NULL
+	)
 	{
-		$keys = array(
-			'access_token', 'expires', 'client_id', 'user_id', 'scope'
-		);
-		$vals = array(
-			UUID::v4(),
-			time() + Model_OAuth2_Access_Token::$lifetime,
-			$client_id,
-			$user_id,
-			$scope
+		$token = new Model_OAuth2_Access_Token(
+			array(
+				'_data' => array(
+					'access_token' => UUID::v4(),
+					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
+					'client_id' => $client_id,
+					'user_id' => $user_id,
+					'scope' => $scope
+				)
+			)
 		);
 
-		$token = db::insert('oauth2_access_tokens', $keys)
-			->values($vals)
-			->execute();
+		$token->save();
 
-		return (object) array_combine($keys, $vals);
+		return $token;
 	}
 
 	/**
 	 * Deletes an access token
 	 * 
-	 * @param string $access_token
+	 * @param string $access_token the token to delete
 	 * 
 	 * @return null
 	 */
 	public static function delete_token($access_token)
 	{
-		db::delete('oauth2_access_tokens')
-			->where('access_token', '=', $access_token)
-			->execute();
+		return Model_OAuth2_Access_Token::find_token($access_token)->delete();
 	}
 }

@@ -11,10 +11,16 @@
  */
 class Kohana_Model_OAuth2_Refresh_Token
 	extends Model_Database
-	implements Model_OAuth2_Interface_Refresh_Token,
-		Kohana_Model_OAuth2_Interface_Oauth
+	implements Model_OAuth2_Interface_Refresh_Token
 {
 	protected $_table = 'oauth2_refresh_tokens';
+
+	/**
+	 * @var  array Array of field names
+	 */
+	protected $_fields = array(
+		'id', 'refresh_token', 'expires', 'client_id', 'user_id', 'scope'
+	);
 
 	/**
 	 * @var  integer  Token Lifetime in seconds
@@ -40,7 +46,9 @@ class Kohana_Model_OAuth2_Refresh_Token
 			$query->where('client_id', '=', $client_id);
 		}
 
-		$result = $query->as_object()->execute();
+		$result = $query->as_object('Model_OAuth2_Refresh_Token', array(
+			array('loaded' => TRUE, 'saved' => TRUE)
+		))->execute();
 
 		if (count($result))
 		{
@@ -48,7 +56,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 		}
 		else
 		{
-			return null;
+			return new Model_OAuth2_Refresh_Token;
 		}
 	}
 
@@ -65,22 +73,21 @@ class Kohana_Model_OAuth2_Refresh_Token
 		$client_id, $user_id = NULL, $scope = NULL
 	)
 	{
-		$keys = array(
-			'refresh_token', 'expires', 'client_id', 'user_id', 'scope'
-		);
-		$vals = array(
-			UUID::v4(),
-			time() + Model_OAuth2_Access_Token::$lifetime,
-			$client_id,
-			$user_id,
-			$scope
+		$token = new Model_OAuth2_Access_Token(
+			array(
+				'_data' => array(
+					'refresh_token' => UUID::v4(),
+					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
+					'client_id' => $client_id,
+					'user_id' => $user_id,
+					'scope' => $scope,
+				)
+			)
 		);
 
-		$token = db::insert('oauth2_refresh_tokens', $keys)
-			->values($vals)
-			->execute();
+		$token->save();
 
-		return (object) array_combine($keys, $vals);
+		return $token;
 	}
 
 	/**
@@ -92,8 +99,6 @@ class Kohana_Model_OAuth2_Refresh_Token
 	 */
 	public static function delete_token($refresh_token)
 	{
-		db::delete('oauth2_refresh_tokens')
-			->where('refresh_token', '=', $refresh_token)
-			->execute();
+		Model_OAuth2_Refresh_Token::find_client($refresh_token)->delete();
 	}
 }

@@ -10,26 +10,23 @@
  * @license   https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Client
-	extends Model_Database
-	implements Kohana_Model_OAuth2_Interface_Client,
-		Kohana_Model_OAuth2_Interface_Oauth
+	extends Model_OAuth2
+	implements Kohana_Model_OAuth2_Interface_Client
 {
 	protected $_table = 'oauth2_clients';
 
 	/**
-	 * Determine if this model is loaded
-	 *
-	 * @return bool
+	 * @var  array Array of field names
 	 */
-	public function loaded()
-	{
-		return isset($this->client_id);
-	}
+	protected $_fields = array(
+		'id', 'user_id', 'client_id', 'client_secret', 'redirect_uri'
+	);
 
 	/**
 	 * Find a client
 	 *
-	 * @param string $client_id
+	 * @param int    $client_id     the client to find
+	 * @param string $client_secret the secret to find with
 	 * 
 	 * @return stdClass | null
 	 */
@@ -44,7 +41,9 @@ class Kohana_Model_OAuth2_Client
 			$query->where('client_id', '=', $client_secret);
 		}
 
-		$result = $query->as_object('Model_OAuth2_Client')->execute();
+		$result = $query->as_object('Model_OAuth2_Client', array(
+			array('loaded' => TRUE, 'saved' => TRUE)
+		))->execute();
 
 		if (count($result))
 		{
@@ -52,32 +51,40 @@ class Kohana_Model_OAuth2_Client
 		}
 		else
 		{
-			return null;
+			return new Model_OAuth2_Client;
 		}
 	}
 
 	/**
 	 * Create a client
 	 *
-	 * @param string $client_id    sets the client id
-	 * @param string $scope        sets the scope
 	 * @param string $redirect_uri sets the redirect uri
+	 * @param string $user_id      sets the user id
 	 * 
 	 * @return stdObject
 	 */
 	public static function create_client($redirect_uri = NULL, $user_id = NULL)
 	{
-		$keys = array('user_id', 'client_id', 'client_secret', 'redirect_uri');
-		$vals = array($user_id, UUID::v4(), UUID::v4(), $redirect_uri);
-		$token = db::insert('oauth2_clients', $keys)
-			->values($vals)
-			->execute();
+		$client = new Model_OAuth2_Access_Token(
+			array(
+				'_data' => array(
+					'user_id' => $user_id,
+					'client_id' => UUID::v4(),
+					'client_secret' => UUID::v4(),
+					'redirect_uri' => $redirect_uri,
+				)
+			)
+		);
+
+		$client->save();
 
 		return $client;
 	}
 
 	/**
 	 * Deletes a token
+	 * 
+	 * @param int $client_id client to delete
 	 * 
 	 * @return null
 	 */

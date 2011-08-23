@@ -9,7 +9,10 @@
  * @copyright  (c) 2011 Managed I.T.
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-abstract class Kohana_Model_OAuth2 extends Model {
+abstract class Kohana_Model_OAuth2
+	extends Model
+	implements Model_OAuth2_Interface_Oauth
+{
 	/**
 	 * @var  string  Table name
 	 */
