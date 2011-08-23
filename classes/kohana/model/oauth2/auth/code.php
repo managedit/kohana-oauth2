@@ -10,16 +10,29 @@
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Auth_Code
-	extends Model_Database
+	extends Model_OAuth2
 	implements Model_OAuth2_Interface_Auth_Code,
 		Kohana_Model_OAuth2_Interface_Oauth
 {
 	protected $_table = 'oauth2_auth_codes';
 
 	/**
-	 * @var integer Lifetime
+	 * @var  integer  Lifetime
 	 */
 	public static $lifetime = 30;
+
+	/**
+	 * @var  array Array of field names
+	 */
+	protected $_fields = array(
+		'id',
+		'code',
+		'client_id',
+		'user_id',
+		'redirect_uri',
+		'expires',
+		'scope'
+	);
 
 	/**
 	 * Find a auth code
@@ -31,25 +44,14 @@ class Kohana_Model_OAuth2_Auth_Code
 	 */
 	public static function find_code($code, $client_id = NULL)
 	{
-		$query = db::select('*')->from('oauth2_auth_codes')
-			->where('code', '=', $client_id)
-			->where('expires', '>=', time());
+		$result = DB::select()
+			->from(Model_OAuth2_Auth_Code::$_table_name)
+			->where('code', '=', $code)
+			->where('expires', '>=', time())
+			->as_object('Model_OAuth2_Auth_Code', array(array('loaded' => TRUE, 'saved' => TRUE)))
+			->execute();
 
-		if (NULL !== $client_id)
-		{
-			$query->where('client_id', '=', $client_id);
-		}
-
-		$result = $query->as_object()->execute();
-
-		if (count($result))
-		{
-			return $result->current();
-		}
-		else
-		{
-			return null;
-		}
+		return ($result->count() > 0) ? $result->current() : new Model_OAuth2_Auth_Code();
 	}
 
 	/**
@@ -78,11 +80,7 @@ class Kohana_Model_OAuth2_Auth_Code
 			$scope
 		);
 
-		$token = db::insert('oauth2_auth_codes', $keys)
-			->values($vals)
-			->execute();
-
-		return (object) array_combine($keys, $vals);
+		return $code;
 	}
 
 	/**
@@ -92,8 +90,6 @@ class Kohana_Model_OAuth2_Auth_Code
 	 */
 	public static function delete_code($code)
 	{
-		db::delete('oauth2_auth_codes')
-			->where('code', '=', $code)
-			->execute();
+		return Model_OAuth2_Auth_Code::find_code($code)->delete();
 	}
 }

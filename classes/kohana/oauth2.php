@@ -9,9 +9,6 @@
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_OAuth2 {
-	// Validation Regexs
-	const CLIENT_ID_REGEXP           = "/^[a-z0-9-_]{3,32}$/i";
-
 	// Response Types
 	const RESPONSE_TYPE_CODE = 'code';
 	const RESPONSE_TYPE_TOKEN = 'token';

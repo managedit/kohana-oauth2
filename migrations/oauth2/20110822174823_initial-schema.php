@@ -8,7 +8,7 @@
  * @copyright  (c) 2011 Managed I.T.
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-class Migration_Oauth_20110822174823 extends Minion_Migration_Base {
+class Migration_Oauth2_20110822174823 extends Minion_Migration_Base {
 
 	/**
 	 * Run queries needed to apply this migration

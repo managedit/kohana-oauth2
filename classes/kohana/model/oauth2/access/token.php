@@ -17,9 +17,9 @@ class Kohana_Model_OAuth2_Access_Token
 	$this->_table = 'oauth2_access_tokens';
 
 	/**
-	 * @var  integer  Token Lifetime
+	 * @var  integer  Token Lifetime in seconds
 	 */
-	public static $lifetime = 3600;
+	public static $lifetime = 900; // 5 Minutes
 
 	/**
 	 * Find an access token

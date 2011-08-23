@@ -65,20 +65,13 @@ class Kohana_Model_OAuth2_Client
 	 * 
 	 * @return stdObject
 	 */
-	public static function create_client(
-		$client_id, $client_secret, $redirect_uri = NULL
-	)
+	public static function create_client($redirect_uri = NULL, $user_id = NULL)
 	{
-		$keys = array('client_id', 'client_secret', 'redirect_uri');
-		$vals = array($client_id, $client_secret, $redirect_uri);
+		$keys = array('user_id', 'client_id', 'client_secret', 'redirect_uri');
+		$vals = array($user_id, UUID::v4(), UUID::v4(), $redirect_uri);
 		$token = db::insert('oauth2_clients', $keys)
 			->values($vals)
 			->execute();
-
-		$client = new Model_Oauth2_Client;
-		$client->client_id = $client_id;
-		$client->client_secret = $client_secret;
-		$client->redirect_uri = $redirect_uri;
 
 		return $client;
 	}
@@ -90,9 +83,7 @@ class Kohana_Model_OAuth2_Client
 	 */
 	public static function delete_client($client_id)
 	{
-		db::delete('oauth2_clients')
-			->where('client_id', '=', $client_id)
-			->execute();
+		Model_OAuth2_Client::find_client($client_id)->delete();
 	}
 
 	/**
