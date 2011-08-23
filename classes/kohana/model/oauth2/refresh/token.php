@@ -9,7 +9,11 @@
  * @copyright  (c) 2011 Managed I.T.
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-class Kohana_Model_OAuth2_Refresh_Token extends ORM {
+class Kohana_Model_OAuth2_Refresh_Token
+	extends Model_Database
+	implements Model_OAuth2_Interface_Refresh_Token
+{
+	protected $_table = 'oauth2_refresh_tokens';
 
 	/**
 	 * @var  integer  Token Lifetime
@@ -19,50 +23,76 @@ class Kohana_Model_OAuth2_Refresh_Token extends ORM {
 	/**
 	 * Find a token
 	 *
-	 * @param  string  $refresh_token
-	 * @return Model_OAuth2_Refresh_Token
+	 * @param string $refresh_token the token to find
+	 * @param int    $client_id     the optional client id to find with
+	 * 
+	 * @return stdClass | null
 	 */
 	public static function find_token($refresh_token, $client_id = NULL)
 	{
-		$token = ORM::factory('oauth2_refresh_token')
-			->where('refresh_token', '=', $refresh_token)
+		$query = db::select('*')->from($this->_table)
+			->where('code', '=', $client_id)
 			->where('expires', '>=', time());
 
-		if ($client_id !== NULL)
+		if (NULL !== $client_id)
 		{
-			$token->where('client_id', '=', $client_id);
+			$query->where('client_id', '=', $client_id);
 		}
 
-		return $token->find();
+		$result = $query->as_object()->execute($this->_db);
+
+		if (count($result))
+		{
+			return $result->current();
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	/**
 	 * Create a token
 	 *
-	 * @param  string  $client_id
-	 * @param  string  $scope
-	 * @return Model_OAuth2_Auth_Code
+	 * @param int    $client_id the client id to create with
+	 * @param int    $user_id   the user id to create with
+	 * @param string $scope     the scope to create with
+	 * 
+	 * @return stdClass
 	 */
-	public static function create_token($client_id, $user_id = NULL, $scope = NULL)
+	public static function create_token(
+		$client_id, $user_id = NULL, $scope = NULL
+	)
 	{
-		$token = ORM::factory('oauth2_refresh_token')
-			->values(array(
-				'refresh_token' => UUID::v4(),
-				'expires'       => time() + Model_OAuth2_Refresh_Token::$lifetime,
-				'client_id'     => $client_id,
-				'user_id'       => $user_id,
-				'scope'         => $scope,
-			))
-			->save();
+		$keys = array(
+			'refresh_token', 'expires', 'client_id', 'user_id', 'scope'
+		);
+		$vals = array(
+			UUID::v4(),
+			time() + Model_OAuth2_Access_Token::$lifetime,
+			$client_id,
+			$user_id,
+			$scope
+		);
 
-		return $token;
+		$token = db::insert($this->_table, $keys)
+			->values($vals)
+			->execute($this->_db);
+
+		return (object) array_combine($keys, $vals);
 	}
 
 	/**
 	 * Deletes a token
+	 * 
+	 * @param string $refresh_token the token to delete
+	 * 
+	 * @return null
 	 */
 	public static function delete_token($refresh_token)
 	{
-		Model_OAuth2_Refresh_Token::find_token($refresh_token)->delete();
+		db::delete($this->_table)
+			->where('refresh_token', '=', $refresh_token)
+			->execute($this->_db);
 	}
 }

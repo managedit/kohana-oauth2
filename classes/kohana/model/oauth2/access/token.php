@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 /**
- *
+ * Model to handle oauth2 access tokens
  *
  * @package    OAuth2
  * @category   Model
@@ -9,7 +9,11 @@
  * @copyright  (c) 2011 Managed I.T.
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-class Kohana_Model_OAuth2_Access_Token extends ORM {
+class Kohana_Model_OAuth2_Access_Token
+	extends Model_Database
+	implements Model_OAuth2_Interface_Access_Token
+{
+	$this->_table = 'oauth2_access_tokens';
 
 	/**
 	 * @var  integer  Token Lifetime
@@ -19,50 +23,74 @@ class Kohana_Model_OAuth2_Access_Token extends ORM {
 	/**
 	 * Find an access token
 	 *
-	 * @param  string  $oauth_token
-	 * @return Model_OAuth2_Token
+	 * @param string $access_token token to find
+	 * @param int    $client_id    client to match with
+	 * 
+	 * @return stdClass
 	 */
 	public static function find_token($access_token, $client_id = NULL)
 	{
-		$token = ORM::factory('oauth2_access_token')
-			->where('access_token', '=', $access_token)
+		$query = db::select('*')->from($this->_table)
+			->where('access_token', '=', $client_id)
 			->where('expires', '>=', time());
 
-		if ($client_id !== NULL)
+		if (NULL !== $client_id)
 		{
-			$token->where('client_id', '=', $client_id);
+			$query->where('client_id', '=', $client_id);
 		}
 
-		return $token->find();
+		$result = $query->as_object()->execute($this->_db);
+
+		if (count($result))
+		{
+			return $result->current();
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	/**
 	 * Create an access token
 	 *
-	 * @param  string  $client_id
-	 * @param  string  $scope
-	 * @return Model_OAuth2_Auth_Code
+	 * @param int $client_id client id to create with
+	 * @param int $user_id   user id to create with
+	 * @param int $scope     scope to create with
+	 * 
+	 * @return stdClass
 	 */
 	public static function create_token($client_id, $user_id = NULL, $scope = NULL)
 	{
-		$token = ORM::factory('oauth2_access_token')
-			->values(array(
-				'access_token' => UUID::v4(),
-				'expires'      => time() + Model_OAuth2_Access_Token::$lifetime,
-				'client_id'    => $client_id,
-				'user_id'      => $user_id,
-				'scope'        => $scope,
-			))
-			->save();
+		$keys = array(
+			'access_token', 'expires', 'client_id', 'user_id', 'scope'
+		);
+		$vals = array(
+			UUID::v4(),
+			time() + Model_OAuth2_Access_Token::$lifetime,
+			$client_id,
+			$user_id,
+			$scope
+		);
 
-		return $token;
+		$token = db::insert($this->_table, $keys)
+			->values($vals)
+			->execute($this->_db);
+
+		return (object) array_combine($keys, $vals);
 	}
 
 	/**
 	 * Deletes an access token
+	 * 
+	 * @param string $access_token
+	 * 
+	 * @return null
 	 */
 	public static function delete_token($access_token)
 	{
-		Model_OAuth2_Access_Token::find_token($access_token)->delete();
+		db::delete($this->_table)
+			->where('access_token', '=', $access_token)
+			->execute($this->_db);
 	}
 }

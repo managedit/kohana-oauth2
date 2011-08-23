@@ -9,7 +9,7 @@
  * @copyright (c) 2011 Managed I.T.
  * @license   https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-interface Model_OAuth2_Client_Interface
+interface Kohana_Model_OAuth2_Interface_Client
 {
 	/**
 	 * Find a client

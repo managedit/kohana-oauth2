@@ -11,7 +11,7 @@
  */
 class Kohana_Model_OAuth2_Client
 	extends Database_Model
-	implements Model_OAuth2_Client_Interface
+	implements Kohana_Model_OAuth2_Interface_Client
 {
 	protected $_table = 'oauth2_clients';
 
