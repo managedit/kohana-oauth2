@@ -30,7 +30,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 	 */
 	public static function find_token($refresh_token, $client_id = NULL)
 	{
-		$query = db::select('*')->from($this->_table)
+		$query = db::select('*')->from('oauth2_refresh_tokens')
 			->where('code', '=', $client_id)
 			->where('expires', '>=', time());
 
@@ -39,7 +39,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 			$query->where('client_id', '=', $client_id);
 		}
 
-		$result = $query->as_object()->execute($this->_db);
+		$result = $query->as_object()->execute();
 
 		if (count($result))
 		{
@@ -75,9 +75,9 @@ class Kohana_Model_OAuth2_Refresh_Token
 			$scope
 		);
 
-		$token = db::insert($this->_table, $keys)
+		$token = db::insert('oauth2_refresh_tokens', $keys)
 			->values($vals)
-			->execute($this->_db);
+			->execute();
 
 		return (object) array_combine($keys, $vals);
 	}
@@ -91,8 +91,8 @@ class Kohana_Model_OAuth2_Refresh_Token
 	 */
 	public static function delete_token($refresh_token)
 	{
-		db::delete($this->_table)
+		db::delete('oauth2_refresh_tokens')
 			->where('refresh_token', '=', $refresh_token)
-			->execute($this->_db);
+			->execute();
 	}
 }

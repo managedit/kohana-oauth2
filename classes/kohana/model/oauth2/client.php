@@ -10,7 +10,7 @@
  * @license   https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Client
-	extends Database_Model
+	extends Model_Database
 	implements Kohana_Model_OAuth2_Interface_Client
 {
 	protected $_table = 'oauth2_clients';
@@ -24,7 +24,7 @@ class Kohana_Model_OAuth2_Client
 	 */
 	public static function find_client($client_id, $client_secret = NULL)
 	{
-		$query = db::select('*')->from($this->_table)->where(
+		$query = db::select('*')->from('oauth2_clients')->where(
 			'client_id', '=', $client_id
 		);
 
@@ -33,7 +33,7 @@ class Kohana_Model_OAuth2_Client
 			$query->where('client_id', '=', $client_secret);
 		}
 
-		$result = $query->as_object()->execute($this->_db);
+		$result = $query->as_object()->execute();
 
 		if (count($result))
 		{
@@ -60,9 +60,9 @@ class Kohana_Model_OAuth2_Client
 	{
 		$keys = array('client_id', 'client_secret', 'redirect_uri');
 		$vals = array($client_id, $client_secret, $redirect_uri);
-		$token = db::insert($this->_table, $keys)
+		$token = db::insert('oauth2_clients', $keys)
 			->values($vals)
-			->execute($this->_db);
+			->execute();
 
 		return (object) array_combine($keys, $vals);
 	}
@@ -74,9 +74,9 @@ class Kohana_Model_OAuth2_Client
 	 */
 	public static function delete_client($client_id)
 	{
-		db::delete($this->_table)
+		db::delete('oauth2_clients')
 			->where('client_id', '=', $client_id)
-			->execute($this->_db);
+			->execute();
 	}
 
 	/**

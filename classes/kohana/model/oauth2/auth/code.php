@@ -30,7 +30,7 @@ class Kohana_Model_OAuth2_Auth_Code
 	 */
 	public static function find_code($code, $client_id = NULL)
 	{
-		$query = db::select('*')->from($this->_table)
+		$query = db::select('*')->from('oauth2_auth_codes')
 			->where('code', '=', $client_id)
 			->where('expires', '>=', time());
 
@@ -39,7 +39,7 @@ class Kohana_Model_OAuth2_Auth_Code
 			$query->where('client_id', '=', $client_id);
 		}
 
-		$result = $query->as_object()->execute($this->_db);
+		$result = $query->as_object()->execute();
 
 		if (count($result))
 		{
@@ -77,9 +77,9 @@ class Kohana_Model_OAuth2_Auth_Code
 			$scope
 		);
 
-		$token = db::insert($this->_table, $keys)
+		$token = db::insert('oauth2_auth_codes', $keys)
 			->values($vals)
-			->execute($this->_db);
+			->execute();
 
 		return (object) array_combine($keys, $vals);
 	}
@@ -91,8 +91,8 @@ class Kohana_Model_OAuth2_Auth_Code
 	 */
 	public static function delete_code($code)
 	{
-		db::delete($this->_table)
+		db::delete('oauth2_auth_codes')
 			->where('code', '=', $code)
-			->execute($this->_db);
+			->execute();
 	}
 }
