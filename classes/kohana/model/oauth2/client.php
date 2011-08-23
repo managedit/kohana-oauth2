@@ -40,17 +40,17 @@ class Kohana_Model_OAuth2_Client extends ORM {
 	 * @param  string  $scope
 	 * @return Model_OAuth2_Client
 	 */
-	public static function create_client($client_id, $client_secret, $redirect_uri = NULL)
+	public static function create_client($redirect_uri = NULL, $user_id = NULL)
 	{
-		$token = ORM::factory('oauth2_client')
+		$client = ORM::factory('oauth2_client')
 			->values(array(
-				'client_id'     => $client_id,
-				'client_secret' => $client_secret,
+				'user_id'       => $user_id,
+				'client_id'     => UUID::v4(),
+				'client_secret' => UUID::v4(),
 				'redirect_uri'  => $redirect_uri,
-			))
-			->save();
+			))->save();
 
-		return $token;
+		return $client;
 	}
 
 	/**

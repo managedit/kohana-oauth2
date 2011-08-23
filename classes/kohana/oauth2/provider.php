@@ -62,7 +62,7 @@ class Kohana_OAuth2_Provider {
 
 		$validation = Validation::factory($request_params)
 			->rule('client_id',     'not_empty')
-			->rule('client_id',     'regex',     array(':value', OAuth2::CLIENT_ID_REGEXP))
+			->rule('client_id',     'uuid::valid')
 			->rule('response_type', 'not_empty')
 			->rule('response_type', 'in_array',  array(':value', OAuth2::$supported_response_types))
 			->rule('scope',         'in_array',  array(':value', OAuth2::$supported_scopes))
@@ -207,8 +207,9 @@ class Kohana_OAuth2_Provider {
 
 		$validation = Validation::factory($request_params)
 			->rule('client_id',     'not_empty')
-			->rule('client_id',     'regex',    array(':value', OAuth2::CLIENT_ID_REGEXP))
+			->rule('client_id',     'uuid::valid')
 			->rule('client_secret', 'not_empty')
+			->rule('client_secret', 'uuid::valid')
 			->rule('grant_type',    'not_empty')
 			->rule('grant_type',    'in_array', array(':value', OAuth2::$supported_grant_types))
 			->rule('refresh_token', 'uuid::valid')
