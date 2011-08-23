@@ -11,9 +11,20 @@
  */
 class Kohana_Model_OAuth2_Client
 	extends Model_Database
-	implements Kohana_Model_OAuth2_Interface_Client
+	implements Kohana_Model_OAuth2_Interface_Client,
+		Kohana_Model_OAuth2_Interface_Oauth
 {
 	protected $_table = 'oauth2_clients';
+
+	/**
+	 * Determine if this model is loaded
+	 *
+	 * @return bool
+	 */
+	public function loaded()
+	{
+		return isset($this->client_id);
+	}
 
 	/**
 	 * Find a client
@@ -33,7 +44,7 @@ class Kohana_Model_OAuth2_Client
 			$query->where('client_id', '=', $client_secret);
 		}
 
-		$result = $query->as_object()->execute();
+		$result = $query->as_object('Model_OAuth2_Client')->execute();
 
 		if (count($result))
 		{
@@ -64,7 +75,12 @@ class Kohana_Model_OAuth2_Client
 			->values($vals)
 			->execute();
 
-		return (object) array_combine($keys, $vals);
+		$client = new Model_Oauth2_Client;
+		$client->client_id = $client_id;
+		$client->client_secret = $client_secret;
+		$client->redirect_uri = $redirect_uri;
+
+		return $client;
 	}
 
 	/**

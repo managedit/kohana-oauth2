@@ -11,7 +11,8 @@
  */
 class Kohana_Model_OAuth2_Refresh_Token
 	extends Model_Database
-	implements Model_OAuth2_Interface_Refresh_Token
+	implements Model_OAuth2_Interface_Refresh_Token,
+		Kohana_Model_OAuth2_Interface_Oauth
 {
 	protected $_table = 'oauth2_refresh_tokens';
 

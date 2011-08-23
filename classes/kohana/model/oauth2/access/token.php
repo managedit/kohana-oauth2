@@ -11,7 +11,8 @@
  */
 class Kohana_Model_OAuth2_Access_Token
 	extends Model_Database
-	implements Model_OAuth2_Interface_Access_Token
+	implements Model_OAuth2_Interface_Access_Token,
+		Kohana_Model_OAuth2_Interface_Oauth
 {
 	$this->_table = 'oauth2_access_tokens';
 

@@ -11,7 +11,8 @@
  */
 class Kohana_Model_OAuth2_Auth_Code
 	extends Model_Database
-	implements Model_OAuth2_Interface_Auth_Code
+	implements Model_OAuth2_Interface_Auth_Code,
+		Kohana_Model_OAuth2_Interface_Oauth
 {
 	protected $_table = 'oauth2_auth_codes';
 
