@@ -9,12 +9,29 @@
  * @copyright  (c) 2011 Managed I.T.
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-class Kohana_Model_OAuth2_Auth_Code extends ORM {
+class Kohana_Model_OAuth2_Auth_Code extends Model_OAuth2 {
+	/**
+	 * @var  string  Table name
+	 */
+	protected $_table_name = 'oauth2_auth_codes';
 
 	/**
 	 * @var  integer  Lifetime in seconds
 	 */
 	public static $lifetime = 30;
+
+	/**
+	 * @var  array Array of field names
+	 */
+	protected $_fields = array(
+		'id',
+		'code',
+		'client_id',
+		'user_id',
+		'redirect_uri',
+		'expires',
+		'scope'
+	);
 
 	/**
 	 * Find a auth code
@@ -24,12 +41,14 @@ class Kohana_Model_OAuth2_Auth_Code extends ORM {
 	 */
 	public static function find_code($code, $client_id = NULL)
 	{
-		$code = ORM::factory('oauth2_auth_code')
+		$result = DB::select()
+			->from(Model_OAuth2_Auth_Code::$_table_name)
 			->where('code', '=', $code)
 			->where('expires', '>=', time())
-			->find();
+			->as_object('Model_OAuth2_Auth_Code', array(array('loaded' => TRUE, 'saved' => TRUE)))
+			->execute();
 
-		return $code;
+		return ($result->count() > 0) ? $result->current() : new Model_OAuth2_Auth_Code();
 	}
 
 	/**
@@ -42,18 +61,16 @@ class Kohana_Model_OAuth2_Auth_Code extends ORM {
 	 */
 	public static function create_code($client_id, $redirect_uri, $user_id = NULL, $scope = NULL)
 	{
-		$code = ORM::factory('oauth2_auth_code')
-			->values(array(
-				'code'         => UUID::v4(),
-				'expires'      => time() + Model_OAuth2_Auth_Code::$lifetime,
-				'client_id'    => $client_id,
-				'user_id'      => $user_id,
-				'redirect_uri' => $redirect_uri,
-				'scope'        => $scope,
-			))
-			->save();
+		$code = new Model_OAuth2_Auth_Code;
 
-		return $code;
+		$code->code = UUID::v4();
+		$code->expires = time() + Model_OAuth2_Auth_Code::$lifetime;
+		$code->client_id = $client_id;
+		$code->user_id = $user_id;
+		$code->redirect_uri = $redirect_uri;
+		$code->scope = $scope;
+
+		return $code->save();
 	}
 
 	/**
@@ -61,6 +78,6 @@ class Kohana_Model_OAuth2_Auth_Code extends ORM {
 	 */
 	public static function delete_code($code)
 	{
-		Model_OAuth2_Auth_Code::find_code($code)->delete();
+		return Model_OAuth2_Auth_Code::find_code($code)->delete();
 	}
 }
