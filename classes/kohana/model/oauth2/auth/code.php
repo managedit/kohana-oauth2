@@ -12,7 +12,7 @@
 class Kohana_Model_OAuth2_Auth_Code extends ORM {
 
 	/**
-	 * @var  integer  Lifetime
+	 * @var  integer  Lifetime in seconds
 	 */
 	public static $lifetime = 30;
 

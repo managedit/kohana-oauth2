@@ -10,7 +10,12 @@
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Client extends ORM {
+
+	/**
+	 * @var string Database Table
+	 */
 	protected $_table = 'oauth2_clients';
+
 
 	/**
 	 * Find a client

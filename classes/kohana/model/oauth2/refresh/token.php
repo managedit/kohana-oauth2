@@ -12,9 +12,9 @@
 class Kohana_Model_OAuth2_Refresh_Token extends ORM {
 
 	/**
-	 * @var  integer  Token Lifetime
+	 * @var  integer  Token Lifetime in seconds
 	 */
-	public static $lifetime = 2592000; // 30 Days
+	public static $lifetime = 15552000; // 6 Months
 
 	/**
 	 * Find a token

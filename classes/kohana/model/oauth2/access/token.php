@@ -12,9 +12,9 @@
 class Kohana_Model_OAuth2_Access_Token extends ORM {
 
 	/**
-	 * @var  integer  Token Lifetime
+	 * @var  integer  Token Lifetime in seconds
 	 */
-	public static $lifetime = 3600;
+	public static $lifetime = 900; // 5 Minutes
 
 	/**
 	 * Find an access token
