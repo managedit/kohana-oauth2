@@ -17,7 +17,7 @@ interface Interface_Model_OAuth2_Access_Token extends Interface_Model_OAuth2
 	 * @param string $access_token token to find
 	 * @param int    $client_id    client to match with
 	 *
-	 * @return stdClass
+	 * @return Model_OAuth2_Access_Token
 	 */
 	public static function find_token($access_token, $client_id = NULL);
 
@@ -28,7 +28,7 @@ interface Interface_Model_OAuth2_Access_Token extends Interface_Model_OAuth2
 	 * @param int $user_id   user id to create with
 	 * @param int $scope     scope to create with
 	 *
-	 * @return stdClass
+	 * @return Model_OAuth2_Access_Token
 	 */
 	public static function create_token(
 		$client_id, $user_id = NULL, $scope = NULL
@@ -42,4 +42,11 @@ interface Interface_Model_OAuth2_Access_Token extends Interface_Model_OAuth2
 	 * @return null
 	 */
 	public static function delete_token($access_token);
+
+	/**
+	 * Deletes expired tokens
+	 *
+	 * @return  integer  Number of tokens deleted
+	 */
+	public static function deleted_expired_tokens();
 }

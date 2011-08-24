@@ -101,4 +101,19 @@ class Kohana_Model_OAuth2_Refresh_Token
 	{
 		Model_OAuth2_Refresh_Token::find_client($refresh_token)->delete();
 	}
+
+	/**
+	 * Deletes expired tokens
+	 *
+	 * @return integer Number of tokens deleted
+	 */
+	public static function deleted_expired_tokens()
+	{
+
+		$rows_deleted = DB::delete('oauth2_refresh_tokens')
+			->where('expires', '<=', time())
+			->execute();
+
+		return $rows_deleted;
+	}
 }

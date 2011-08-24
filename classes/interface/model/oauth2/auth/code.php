@@ -41,4 +41,11 @@ interface Interface_Model_OAuth2_Auth_Code extends Interface_Model_OAuth2
 	 * @param string $code the code to delete
 	 */
 	public static function delete_code($code);
+
+	/**
+	 * Deletes expired codes
+	 *
+	 * @return  integer  Number of codes deleted
+	 */
+	public static function deleted_expired_codes();
 }

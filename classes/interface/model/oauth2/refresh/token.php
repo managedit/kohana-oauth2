@@ -42,4 +42,11 @@ interface Interface_Model_OAuth2_Refresh_Token extends Interface_Model_OAuth2
 	 * @return null
 	 */
 	public static function delete_token($refresh_token);
+
+	/**
+	 * Deletes expired tokens
+	 *
+	 * @return  integer  Number of tokens deleted
+	 */
+	public static function deleted_expired_tokens();
 }

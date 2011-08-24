@@ -101,4 +101,19 @@ class Kohana_Model_OAuth2_Access_Token
 	{
 		return Model_OAuth2_Access_Token::find_token($access_token)->delete();
 	}
+
+	/**
+	 * Deletes expired tokens
+	 *
+	 * @return integer Number of tokens deleted
+	 */
+	public static function deleted_expired_tokens()
+	{
+
+		$rows_deleted = DB::delete('oauth2_access_tokens')
+			->where('expires', '<=', time())
+			->execute();
+
+		return $rows_deleted;
+	}
 }
