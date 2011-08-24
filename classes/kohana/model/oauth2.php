@@ -17,6 +17,7 @@ abstract class Kohana_Model_OAuth2
 	 * @var  string  Table name
 	 */
 	protected $_table_name = NULL;
+
 	/**
 	 * @var  array  Array of data
 	 */
@@ -37,9 +38,15 @@ abstract class Kohana_Model_OAuth2
 	 */
 	protected $_saved = FALSE;
 
+	/**
+	 * @var  Config   Configuration
+	 */
+	protected $_config = NULL;
 
 	public function __construct($params = array())
 	{
+		$this->_config = Kohana::$config->load('oauth2');
+		
 		foreach ($params as $param => $value)
 		{
 			$this->{'_'.$param} = $value;
