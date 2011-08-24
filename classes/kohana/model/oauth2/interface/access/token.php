@@ -9,7 +9,7 @@
  * @copyright (c) 2011 Managed I.T.
  * @license   https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-interface Model_OAuth2_Interface_Access_Token
+interface Kohana_Model_OAuth2_Interface_Access_Token
 {
 	/**
 	 * Find an access token
@@ -41,5 +41,5 @@ interface Model_OAuth2_Interface_Access_Token
 	 * 
 	 * @return null
 	 */
-	public static function delete_token($access_token)
+	public static function delete_token($access_token);
 }

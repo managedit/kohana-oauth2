@@ -11,7 +11,7 @@
  */
 abstract class Kohana_Model_OAuth2
 	extends Model
-	implements Model_OAuth2_Interface_Oauth
+	implements Kohana_Model_OAuth2_Interface_Oauth
 {
 	/**
 	 * @var  string  Table name

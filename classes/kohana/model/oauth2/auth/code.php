@@ -11,10 +11,9 @@
  */
 class Kohana_Model_OAuth2_Auth_Code
 	extends Model_OAuth2
-	implements Model_OAuth2_Interface_Auth_Code,
-		Kohana_Model_OAuth2_Interface_Oauth
+	implements Kohana_Model_OAuth2_Interface_Auth_Code
 {
-	protected $_table = 'oauth2_auth_codes';
+	protected $_table_name = 'oauth2_auth_codes';
 
 	/**
 	 * @var  integer  Lifetime
@@ -72,9 +71,9 @@ class Kohana_Model_OAuth2_Auth_Code
 		$client_id, $redirect_uri, $user_id = NULL, $scope = NULL
 	)
 	{
-		$code = new Model_OAuth2_Access_Token(
+		$code = new Model_OAuth2_Auth_Code(
 			array(
-				'_data' => array(
+				'data' => array(
 					'code' => UUID::v4(),
 					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
 					'client_id' => $client_id,

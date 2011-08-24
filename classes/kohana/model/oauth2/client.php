@@ -13,7 +13,7 @@ class Kohana_Model_OAuth2_Client
 	extends Model_OAuth2
 	implements Kohana_Model_OAuth2_Interface_Client
 {
-	protected $_table = 'oauth2_clients';
+	protected $_table_name = 'oauth2_clients';
 
 	/**
 	 * @var  array Array of field names
@@ -67,7 +67,7 @@ class Kohana_Model_OAuth2_Client
 	{
 		$client = new Model_OAuth2_Access_Token(
 			array(
-				'_data' => array(
+				'data' => array(
 					'user_id' => $user_id,
 					'client_id' => UUID::v4(),
 					'client_secret' => UUID::v4(),

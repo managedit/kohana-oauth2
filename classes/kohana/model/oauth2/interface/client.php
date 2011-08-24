@@ -23,14 +23,13 @@ interface Kohana_Model_OAuth2_Interface_Client
 	/**
 	 * Create a client
 	 *
-	 * @param string $client_id    sets the client id
-	 * @param string $scope        sets the scope
 	 * @param string $redirect_uri sets the redirect uri
+	 * @param string $user_id      sets the user id
 	 * 
 	 * @return stdObject
 	 */
 	public static function create_client(
-		$client_id, $client_secret, $redirect_uri = NULL
+		$redirect_uri = NULL, $user_id = NULL
 	);
 
 	/**

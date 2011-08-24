@@ -11,9 +11,9 @@
  */
 class Kohana_Model_OAuth2_Refresh_Token
 	extends Model_Database
-	implements Model_OAuth2_Interface_Refresh_Token
+	implements Kohana_Model_OAuth2_Interface_Refresh_Token
 {
-	protected $_table = 'oauth2_refresh_tokens';
+	protected $_table_name = 'oauth2_refresh_tokens';
 
 	/**
 	 * @var  array Array of field names
@@ -75,7 +75,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 	{
 		$token = new Model_OAuth2_Access_Token(
 			array(
-				'_data' => array(
+				'data' => array(
 					'refresh_token' => UUID::v4(),
 					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
 					'client_id' => $client_id,

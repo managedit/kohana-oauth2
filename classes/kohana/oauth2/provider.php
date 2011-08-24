@@ -69,7 +69,7 @@ class Kohana_OAuth2_Provider {
 			->rule('redirect_uri',  'url');
 
 		if ( ! $validation->check())
-			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
+			throw new OAuth2_Exception_InvalidRequest("Invalid Request: ".Debug::vars($validation->errors()));
 
 		// Check we have a valid client
 		$client = Model_OAuth2_Client::find_client($request_params['client_id']);

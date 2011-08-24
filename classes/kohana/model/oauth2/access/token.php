@@ -11,9 +11,9 @@
  */
 class Kohana_Model_OAuth2_Access_Token
 	extends Model_OAuth2
-	implements Model_OAuth2_Interface_Access_Token
+	implements Kohana_Model_OAuth2_Interface_Access_Token
 {
-	$this->_table = 'oauth2_access_tokens';
+	protected $_table_name = 'oauth2_access_tokens';
 
 	/**
 	 * @var  array Array of field names
@@ -75,7 +75,7 @@ class Kohana_Model_OAuth2_Access_Token
 	{
 		$token = new Model_OAuth2_Access_Token(
 			array(
-				'_data' => array(
+				'data' => array(
 					'access_token' => UUID::v4(),
 					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
 					'client_id' => $client_id,
