@@ -38,7 +38,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 	public static function find_token($refresh_token, $client_id = NULL)
 	{
 		$query = db::select('*')->from('oauth2_refresh_tokens')
-			->where('code', '=', $client_id)
+			->where('refresh_token', '=', $refresh_token)
 			->where('expires', '>=', time());
 
 		if (NULL !== $client_id)
