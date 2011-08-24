@@ -10,33 +10,17 @@
  */
 class Kohana_OAuth2 {
 	// Response Types
-	const RESPONSE_TYPE_CODE = 'code';
-	const RESPONSE_TYPE_TOKEN = 'token';
-
-	public static $supported_response_types = array (
-		OAuth2::RESPONSE_TYPE_CODE,
-		OAuth2::RESPONSE_TYPE_TOKEN,
-	);
+	const RESPONSE_TYPE_CODE              = 'code';
+	const RESPONSE_TYPE_TOKEN             = 'token';
 
 	// Grant Types
-	const GRANT_TYPE_AUTH_CODE          = 'authorization_code';
-	const GRANT_TYPE_PASSWORD           = 'password';
-	const GRANT_TYPE_REFRESH_TOKEN      = 'refresh_token';
-	const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
-
-	public static $supported_grant_types = array(
-		OAuth2::GRANT_TYPE_AUTH_CODE,
-		OAuth2::GRANT_TYPE_PASSWORD,
-		OAuth2::GRANT_TYPE_REFRESH_TOKEN,
-		OAuth2::GRANT_TYPE_CLIENT_CREDENTIALS,
-	);
+	const GRANT_TYPE_AUTH_CODE            = 'authorization_code';
+	const GRANT_TYPE_PASSWORD             = 'password';
+	const GRANT_TYPE_REFRESH_TOKEN        = 'refresh_token';
+	const GRANT_TYPE_CLIENT_CREDENTIALS   = 'client_credentials';
 
 	// Token Types
-	const TOKEN_TYPE_BEARER = 'Bearer';
-
-	public static $supported_token_types = array (
-		OAuth2::TOKEN_TYPE_BEARER,
-	);
+	const TOKEN_TYPE_BEARER               = 'Bearer';
 
 	// Error Codes
 	const ERROR_INVALID_REQUEST           = 'invalid_request';
@@ -48,6 +32,4 @@ class Kohana_OAuth2 {
 	const ERROR_UNSUPPORTED_RESPONSE_TYPE = 'unsupported_response_type';
 	const ERROR_UNSUPPORTED_GRANT_TYPE    = 'unsupported_grant_type';
 	const ERROR_INVALID_SCOPE             = 'invalid_scope';
-
-	public static $supported_scopes = array('test', 'test2');
 }

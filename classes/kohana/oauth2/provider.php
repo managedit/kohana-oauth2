@@ -17,12 +17,18 @@ class Kohana_OAuth2_Provider {
 	}
 
 	/**
+	 * @var Config Configuration
+	 */
+	protected $_config;
+
+	/**
 	 * @var Request HTTP Request
 	 */
 	protected $_request;
 
 	public function __construct(Request $request)
 	{
+		$this->_config = Kohana::$config->load('oauth2');
 		$this->_request = $request;
 	}
 
@@ -64,8 +70,8 @@ class Kohana_OAuth2_Provider {
 			->rule('client_id',     'not_empty')
 			->rule('client_id',     'uuid::valid')
 			->rule('response_type', 'not_empty')
-			->rule('response_type', 'in_array',  array(':value', OAuth2::$supported_response_types))
-			->rule('scope',         'in_array',  array(':value', OAuth2::$supported_scopes))
+			->rule('response_type', 'in_array',  array(':value', $this->_config->supported_response_types))
+			->rule('scope',         'in_array',  array(':value', $this->_config->scopes))
 			->rule('redirect_uri',  'url');
 
 		if ( ! $validation->check())
@@ -211,10 +217,10 @@ class Kohana_OAuth2_Provider {
 			->rule('client_secret', 'not_empty')
 			->rule('client_secret', 'uuid::valid')
 			->rule('grant_type',    'not_empty')
-			->rule('grant_type',    'in_array', array(':value', OAuth2::$supported_grant_types))
+			->rule('grant_type',    'in_array', array(':value', $this->_config->supported_grant_types))
 			->rule('refresh_token', 'uuid::valid')
 			->rule('code',          'uuid::valid')
-			->rule('scope',         'in_array', array(':value', OAuth2::$supported_scopes))
+			->rule('scope',         'in_array', array(':value', $this->_config->scopes))
 			->rule('redirect_uri',  'url');
 
 		if ( ! $validation->check())
@@ -345,7 +351,7 @@ class Kohana_OAuth2_Provider {
 		$response_params['access_token'] = $access_token->access_token;
 
 		// If refreh tokens are supported, add one.
-		if (in_array(OAuth2::GRANT_TYPE_REFRESH_TOKEN, OAuth2::$supported_grant_types))
+		if (in_array(OAuth2::GRANT_TYPE_REFRESH_TOKEN, $this->_config->supported_grant_types))
 		{
 			// Generate a refresh token
 			$refresh_token = Model_OAuth2_Refresh_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
