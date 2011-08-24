@@ -77,7 +77,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 			array(
 				'data' => array(
 					'refresh_token' => UUID::v4(),
-					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
+					'expires' => time() + Model_OAuth2_Refresh_Token::$lifetime,
 					'client_id' => $client_id,
 					'user_id' => $user_id,
 					'scope' => $scope,
