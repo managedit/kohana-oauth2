@@ -27,7 +27,7 @@ class Kohana_Model_OAuth2_Client
 	 *
 	 * @param int    $client_id     the client to find
 	 * @param string $client_secret the secret to find with
-	 * 
+	 *
 	 * @return stdClass | null
 	 */
 	public static function find_client($client_id, $client_secret = NULL)
@@ -38,7 +38,7 @@ class Kohana_Model_OAuth2_Client
 
 		if (NULL !== $client_secret)
 		{
-			$query->where('client_id', '=', $client_secret);
+			$query->where('client_secret', '=', $client_secret);
 		}
 
 		$result = $query->as_object('Model_OAuth2_Client', array(
@@ -60,7 +60,7 @@ class Kohana_Model_OAuth2_Client
 	 *
 	 * @param string $redirect_uri sets the redirect uri
 	 * @param string $user_id      sets the user id
-	 * 
+	 *
 	 * @return stdObject
 	 */
 	public static function create_client($redirect_uri = NULL, $user_id = NULL)
@@ -83,9 +83,9 @@ class Kohana_Model_OAuth2_Client
 
 	/**
 	 * Deletes a token
-	 * 
+	 *
 	 * @param int $client_id client to delete
-	 * 
+	 *
 	 * @return null
 	 */
 	public static function delete_client($client_id)
@@ -96,7 +96,7 @@ class Kohana_Model_OAuth2_Client
 	/**
 	 * Allows us to restrict which clients can use specific
 	 * response types.
-	 * 
+	 *
 	 * @return array
 	 */
 	public function allowed_response_types()
