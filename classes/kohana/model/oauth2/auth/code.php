@@ -75,7 +75,7 @@ class Kohana_Model_OAuth2_Auth_Code
 			array(
 				'data' => array(
 					'code' => UUID::v4(),
-					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
+					'expires' => time() + Model_OAuth2_Auth_Code::$lifetime,
 					'client_id' => $client_id,
 					'user_id' => $user_id,
 					'redirect_uri' => $redirect_uri,
