@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 /**
- * 
+ *
  *
  * @package    OAuth2
  * @category   Model
@@ -11,7 +11,7 @@
  */
 class Kohana_Model_OAuth2_Auth_Code
 	extends Model_OAuth2
-	implements Kohana_Model_OAuth2_Interface_Auth_Code
+	implements Interface_Model_OAuth2_Auth_Code
 {
 	protected $_table_name = 'oauth2_auth_codes';
 
@@ -38,7 +38,7 @@ class Kohana_Model_OAuth2_Auth_Code
 	 *
 	 * @param string $code      code to find
 	 * @param int    $client_id client id to pair with
-	 * 
+	 *
 	 * @return Model_OAuth2_Auth_Code
 	 */
 	public static function find_code($code, $client_id = NULL)
@@ -64,7 +64,7 @@ class Kohana_Model_OAuth2_Auth_Code
 	 * @param string $redirect_uri redirect uri to create with
 	 * @param int    $user_id      the user id to create with
 	 * @param string $scope        scope to create with
-	 * 
+	 *
 	 * @return Model_OAuth2_Auth_Code
 	 */
 	public static function create_code(
@@ -91,7 +91,7 @@ class Kohana_Model_OAuth2_Auth_Code
 
 	/**
 	 * Deletes a auth code
-	 * 
+	 *
 	 * @param string $code the code to delete
 	 */
 	public static function delete_code($code)

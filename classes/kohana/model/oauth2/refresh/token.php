@@ -11,7 +11,7 @@
  */
 class Kohana_Model_OAuth2_Refresh_Token
 	extends Model_OAuth2
-	implements Kohana_Model_OAuth2_Interface_Refresh_Token
+	implements Interface_Model_OAuth2_Refresh_Token
 {
 	protected $_table_name = 'oauth2_refresh_tokens';
 
@@ -32,7 +32,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 	 *
 	 * @param string $refresh_token the token to find
 	 * @param int    $client_id     the optional client id to find with
-	 * 
+	 *
 	 * @return stdClass | null
 	 */
 	public static function find_token($refresh_token, $client_id = NULL)
@@ -66,7 +66,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 	 * @param int    $client_id the client id to create with
 	 * @param int    $user_id   the user id to create with
 	 * @param string $scope     the scope to create with
-	 * 
+	 *
 	 * @return stdClass
 	 */
 	public static function create_token(
@@ -92,9 +92,9 @@ class Kohana_Model_OAuth2_Refresh_Token
 
 	/**
 	 * Deletes a token
-	 * 
+	 *
 	 * @param string $refresh_token the token to delete
-	 * 
+	 *
 	 * @return null
 	 */
 	public static function delete_token($refresh_token)

@@ -11,7 +11,7 @@
  */
 class Kohana_Model_OAuth2_Access_Token
 	extends Model_OAuth2
-	implements Kohana_Model_OAuth2_Interface_Access_Token
+	implements Interface_Model_OAuth2_Access_Token
 {
 	protected $_table_name = 'oauth2_access_tokens';
 
@@ -32,7 +32,7 @@ class Kohana_Model_OAuth2_Access_Token
 	 *
 	 * @param string $access_token token to find
 	 * @param int    $client_id    client to match with
-	 * 
+	 *
 	 * @return stdClass
 	 */
 	public static function find_token($access_token, $client_id = NULL)
@@ -66,7 +66,7 @@ class Kohana_Model_OAuth2_Access_Token
 	 * @param int $client_id client id to create with
 	 * @param int $user_id   user id to create with
 	 * @param int $scope     scope to create with
-	 * 
+	 *
 	 * @return stdClass
 	 */
 	public static function create_token(
@@ -92,9 +92,9 @@ class Kohana_Model_OAuth2_Access_Token
 
 	/**
 	 * Deletes an access token
-	 * 
+	 *
 	 * @param string $access_token the token to delete
-	 * 
+	 *
 	 * @return null
 	 */
 	public static function delete_token($access_token)

@@ -11,7 +11,7 @@
  */
 abstract class Kohana_Model_OAuth2
 	extends Model
-	implements Kohana_Model_OAuth2_Interface_Oauth
+	implements Interface_Model_OAuth2
 {
 	/**
 	 * @var  string  Table name
@@ -46,7 +46,7 @@ abstract class Kohana_Model_OAuth2
 	public function __construct($params = array())
 	{
 		$this->_config = Kohana::$config->load('oauth2');
-		
+
 		foreach ($params as $param => $value)
 		{
 			$this->{'_'.$param} = $value;
