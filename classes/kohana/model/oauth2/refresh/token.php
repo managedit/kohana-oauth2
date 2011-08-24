@@ -10,7 +10,7 @@
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
 class Kohana_Model_OAuth2_Refresh_Token
-	extends Model_Database
+	extends Model_OAuth2
 	implements Kohana_Model_OAuth2_Interface_Refresh_Token
 {
 	protected $_table_name = 'oauth2_refresh_tokens';
@@ -73,7 +73,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 		$client_id, $user_id = NULL, $scope = NULL
 	)
 	{
-		$token = new Model_OAuth2_Access_Token(
+		$token = new Model_OAuth2_Refresh_Token(
 			array(
 				'data' => array(
 					'refresh_token' => UUID::v4(),
