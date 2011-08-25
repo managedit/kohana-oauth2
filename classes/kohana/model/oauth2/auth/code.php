@@ -79,7 +79,7 @@ class Kohana_Model_OAuth2_Auth_Code
 					'client_id' => $client_id,
 					'user_id' => $user_id,
 					'redirect_uri' => $redirect_uri,
-					'scope' => $scope
+					'scope' => serialize($scope)
 				)
 			)
 		);

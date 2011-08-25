@@ -80,7 +80,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 					'expires' => time() + Model_OAuth2_Refresh_Token::$lifetime,
 					'client_id' => $client_id,
 					'user_id' => $user_id,
-					'scope' => $scope,
+					'scope' => serialize($scope),
 				)
 			)
 		);
@@ -99,7 +99,7 @@ class Kohana_Model_OAuth2_Refresh_Token
 	 */
 	public static function delete_token($refresh_token)
 	{
-		Model_OAuth2_Refresh_Token::find_client($refresh_token)->delete();
+		Model_OAuth2_Refresh_Token::find_token($refresh_token)->delete();
 	}
 
 	/**

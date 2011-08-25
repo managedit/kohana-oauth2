@@ -97,7 +97,6 @@ class Kohana_OAuth2_Provider {
 			throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
 		}
 
-
 		// Check if this client is allowed use this response_type
 		if ( ! in_array($request_params['response_type'], $client->allowed_response_types()))
 			throw new OAuth2_Exception_UnauthorizedClient('You are not allowed use the \':response_type\' response_type', array(
@@ -178,194 +177,62 @@ class Kohana_OAuth2_Provider {
 	}
 
 	/**
+	 * Handle a token request.
 	 *
-	 * @return array
+	 * @return string Response Body
 	 */
-	protected function _get_token_params()
-	{
-		$input = array();
-
-		if ($this->_request->method() == Request::GET)
-		{
-			$input = $this->_request->query();
-		}
-		else
-		{
-			$input = $this->_request->post();
-		}
-
-		return Arr::extract($input, array(
-			'client_id',
-			'client_secret',
-			'grant_type',    // refresh_token, authorization_code, password, client_credentials
-			'refresh_token', // refresh_token,
-			'code',          // authorization_code,
-			'username',      // password,
-			'password',      // password,
-			'scope',         // refresh_token, password, client_credentials
-			'redirect_uri',  // authorization_code,
-		));
-	}
-
-	public function validate_token_params()
-	{
-		$request_params = $this->_get_token_params();
-
-		$validation = Validation::factory($request_params)
-			->rule('client_id',     'not_empty')
-			->rule('client_id',     'uuid::valid')
-			->rule('client_secret', 'not_empty')
-			->rule('client_secret', 'uuid::valid')
-			->rule('grant_type',    'not_empty')
-			->rule('grant_type',    'in_array', array(':value', $this->_config->supported_grant_types))
-			->rule('refresh_token', 'uuid::valid')
-			->rule('code',          'uuid::valid')
-			->rule('scope',         'in_array', array(':value', $this->_config->scopes))
-			->rule('redirect_uri',  'url');
-
-		if ( ! $validation->check())
-			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
-
-		// Find the client
-		$client = Model_OAuth2_Client::find_client($request_params['client_id'], $request_params['client_secret']);
-
-		if ( ! $client->loaded())
-			throw new OAuth2_Exception_UnauthorizedClient('Unauthorized Client');
-
-
-		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_AUTH_CODE)
-		{
-			if ( ! Valid::not_empty($request_params['code']))
-				throw new OAuth2_Exception_InvalidGrant('code is required with the \':grant_type\' grant_type', array(
-					':grant_type' => OAuth2::GRANT_TYPE_AUTH_CODE,
-				));
-
-			if ( ! Valid::not_empty($request_params['redirect_uri']))
-				throw new OAuth2_Exception_InvalidGrant('redirect_uri is required with the \':grant_type\' grant_type', array(
-					':grant_type' => OAuth2::GRANT_TYPE_AUTH_CODE,
-				));
-
-			// Lookup the auth code
-			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code'], $client->client_id);
-
-			if ( ! $auth_code->loaded())
-				throw new OAuth2_Exception_InvalidGrant('Unknown or expired code');
-
-			if ($auth_code->scope !== $request_params['scope'])
-				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
-
-			if ($auth_code->redirect_uri !== $request_params['redirect_uri'])
-				throw new OAuth2_Exception_InvalidGrant('redirect_uri mismatch');
-
-		}
-		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
-		{
-			if ( ! Valid::not_empty($request_params['refresh_token']))
-				throw new OAuth2_Exception_InvalidGrant('refresh_token is required with the \':grant_type\' grant_type', array(
-					':grant_type' => OAuth2::GRANT_TYPE_REFRESH_TOKEN,
-				));
-
-			// Lookup the refresh token
-			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token'], $client->client_id);
-
-			if ( ! $refresh_token->loaded())
-				throw new OAuth2_Exception_InvalidGrant('Unknown or expired refresh token');
-
-			if ($refresh_token->scope !== $request_params['scope'])
-				throw new OAuth2_Exception_InvalidGrant('scope mismatch');
-		}
-		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
-		{
-			// Nothing special Needed
-		}
-		else if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_PASSWORD)
-		{
-			if ( ! Valid::not_empty($request_params['username']))
-				throw new OAuth2_Exception_InvalidGrant('username is required with the \':grant_type\' grant_type', array(
-					':grant_type' => OAuth2::GRANT_TYPE_PASSWORD,
-				));
-
-			if ( ! Valid::not_empty($request_params['password']))
-				throw new OAuth2_Exception_InvalidGrant('password is required with the \':grant_type\' grant_type', array(
-					':grant_type' => OAuth2::GRANT_TYPE_PASSWORD,
-				));
-
-			$this->_validate_user($request_params['username'], $request_params['password']);
-		}
-
-
-		return $request_params;
-	}
-
-	/**
-	 * Validates a username and password are correct, returns a user_id.
-	 * @param string $username
-	 * @param string $password
-	 *
-	 * @return string
-	 */
-	protected function _validate_user($username, $password)
-	{
-		throw new OAuth2_Exception_UnsupportedGrantType('Unsupported Grant Type (_validate_user needs to be implemented)');
-	}
-
 	public function token()
 	{
-		// Validate the request
-		$request_params = $this->validate_token_params();
+		// Some defaults..
+		$user_id       = NULL;
+		$scopes        = NULL;
 
-		// Response Params
-		$response_params = array(
+		// Get an authorization handler
+		$authorization = OAuth2_Provider_Authorization::factory($this->_request);
+
+		// Get the client issueing this request
+		$client = $authorization->get_client();
+
+		// Invalid client? Blow up.
+		if ( ! $client->loaded())
+			throw new OAuth2_Exception_InvalidClient('Unknown or invalid client');
+
+		// Get a grant type handler
+		$grant = OAuth2_Provider_GrantType::factory($this->_request, $client);
+
+		// Validate the request against the rules for this grant type
+		$grant->validate_request();
+
+		// Find the user_id for this request
+		$user_id = $grant->get_user_id();
+
+		// Find the scope for this request
+		$scopes = $grant->get_scopes();
+
+		// Prepare the response
+		$response = array(
 			'token_type'    => OAuth2::TOKEN_TYPE_BEARER,
 			'expires_in'    => Model_OAuth2_Access_Token::$lifetime,
 		);
 
-		$client = Model_OAuth2_Client::find_client($request_params['client_id'], $request_params['client_secret']);
-
-		$user_id = NULL;
-
-		if ($request_params['grant_type'] == OAuth2::GRANT_TYPE_AUTH_CODE)
-		{
-			$auth_code = Model_OAuth2_Auth_Code::find_code($request_params['code']);
-			$user_id = $auth_code->user_id;
-			$auth_code->delete();
-		}
-		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_REFRESH_TOKEN)
-		{
-			$refresh_token = Model_OAuth2_Refresh_Token::find_token($request_params['refresh_token']);
-			$user_id = $refresh_token->user_id;
-			$refresh_token->delete();
-		}
-		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_CLIENT_CREDENTIALS)
-		{
-			$user_id = NULL;
-		}
-		elseif ($request_params['grant_type'] == OAuth2::GRANT_TYPE_PASSWORD)
-		{
-			$user_id = $this->_validate_user($request_params['username'], $request_params['password']);;
-		}
-
 		// Generate an access token
-		$access_token = Model_OAuth2_Access_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
+		$access_token = Model_OAuth2_Access_Token::create_token($client->client_id, $user_id, $scopes);
 
-		$response_params['access_token'] = $access_token->access_token;
+		$response['access_token'] = $access_token->access_token;
 
 		// If refreh tokens are supported, add one.
 		if (in_array(OAuth2::GRANT_TYPE_REFRESH_TOKEN, $this->_config->supported_grant_types))
 		{
 			// Generate a refresh token
-			$refresh_token = Model_OAuth2_Refresh_Token::create_token($request_params['client_id'], $user_id, $request_params['scope']);
+			$refresh_token = Model_OAuth2_Refresh_Token::create_token($client->client_id, $user_id, $scopes);
 
-			$response_params['refresh_token'] = $refresh_token->refresh_token;
+			$response['refresh_token'] = $refresh_token->refresh_token;
 		}
 
-		// Add scope if needed
-		if (Valid::not_empty($request_params['scope']))
-		{
-			$response_params['scope'] = $request_params['scope'];
-		}
+		// Cleanup anything that needs expiring!
+		$grant->cleanup();
 
-		return json_encode($response_params);
+		return json_encode($response);
 	}
 
 	/**

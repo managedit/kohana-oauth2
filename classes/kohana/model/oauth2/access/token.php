@@ -80,7 +80,7 @@ class Kohana_Model_OAuth2_Access_Token
 					'expires' => time() + Model_OAuth2_Access_Token::$lifetime,
 					'client_id' => $client_id,
 					'user_id' => $user_id,
-					'scope' => $scope
+					'scope' => serialize($scope)
 				)
 			)
 		);
