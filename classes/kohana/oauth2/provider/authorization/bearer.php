@@ -33,7 +33,12 @@ class Kohana_OAuth2_Provider_Authorization_Bearer extends OAuth2_Provider_Author
 		return $this->get_client()->client_secret;
 	}
 
-	protected function get_client()
+	/**
+	 * Gets the current client
+	 *
+	 * @return Model_OAuth2_Client
+	 */
+	public function get_client()
 	{
 		$authorization_header = $this->_request->headers('Authorization');
 

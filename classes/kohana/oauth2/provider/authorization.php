@@ -13,22 +13,17 @@ abstract class Kohana_OAuth2_Provider_Authorization {
 
 	public static function factory($request)
 	{
-		// TODO: This shouldn't be hardcoded...
-
-		$authorization_header = $request->headers('Authorization');
-		
-		if (preg_match('/^Bearer (.*)/i', $authorization_header))
+		if (preg_match('/^([A-Za-z]+) .*/i', $request->headers('Authorization'), $matches))
 		{
-			$class = 'OAuth2_Provider_Authorization_Bearer';
-		}
-		elseif (preg_match('/^Basic (.*)/i', $authorization_header))
-		{
-			$class = 'OAuth2_Provider_Authorization_Basic';
+			$class = 'OAuth2_Provider_Authorization_'.$matches[1];
 		}
 		else
 		{
 			$class = 'OAuth2_Provider_Authorization_Body';
 		}
+
+		if ( ! class_exists($class))
+			throw new OAuth2_Exception_InvalidClient('Client authentication failed');
 
 		return new $class($request);
 	}

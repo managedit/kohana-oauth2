@@ -18,7 +18,15 @@ abstract class Kohana_OAuth2_Provider_GrantType {
 
 	public static function factory($request, $client)
 	{
-		$class = 'OAuth2_Provider_GrantType_'.$request->post('grant_type');
+		$grant_type = $request->post('grant_type');
+
+		if ($grant_type == '')
+			throw new OAuth2_Exception_UnsupportedGrantType('Invalid or unknown grant type');
+
+		$class = 'OAuth2_Provider_GrantType_'.$grant_type;
+
+		if ( ! class_exists($class))
+			throw new OAuth2_Exception_UnsupportedGrantType('Unknown or invalid grant_type');
 
 		return new $class($request, $client);
 	}
