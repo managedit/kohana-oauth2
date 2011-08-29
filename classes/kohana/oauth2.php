@@ -23,13 +23,13 @@ class Kohana_OAuth2 {
 	const TOKEN_TYPE_BEARER               = 'Bearer';
 
 	// Error Codes
-	const ERROR_INVALID_REQUEST           = 'invalid_request';
+	const ERROR_ACCESS_DENIED             = 'access_denied';
+	const ERROR_INSUFFICIENT_SCOPE        = 'insufficient_scope';
 	const ERROR_INVALID_CLIENT            = 'invalid_client';
 	const ERROR_INVALID_GRANT             = 'invalid_grant';
-	const ERROR_UNAUTHORIZED_CLIENT       = 'unauthorized_client';
-	const ERROR_REDIRECT_URI_MISMATCH     = 'redirect_uri_mismatch';
-	const ERROR_ACCESS_DENIED             = 'access_denied';
-	const ERROR_UNSUPPORTED_RESPONSE_TYPE = 'unsupported_response_type';
-	const ERROR_UNSUPPORTED_GRANT_TYPE    = 'unsupported_grant_type';
+	const ERROR_INVALID_REQUEST           = 'invalid_request';
 	const ERROR_INVALID_SCOPE             = 'invalid_scope';
+	const ERROR_UNAUTHORIZED_CLIENT       = 'unauthorized_client';
+	const ERROR_UNSUPPORTED_GRANT_TYPE    = 'unsupported_grant_type';
+	const ERROR_UNSUPPORTED_RESPONSE_TYPE = 'unsupported_response_type';
 }

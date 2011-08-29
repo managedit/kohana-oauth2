@@ -32,5 +32,4 @@ class Kohana_OAuth2_Provider_Authorization_Basic extends OAuth2_Provider_Authori
 	{
 		return (isset($_SERVER['PHP_AUTH_PW'])) ? $_SERVER['PHP_AUTH_PW'] : NULL;
 	}
-
 }

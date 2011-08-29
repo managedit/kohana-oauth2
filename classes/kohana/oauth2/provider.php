@@ -36,35 +36,15 @@ class Kohana_OAuth2_Provider {
 	 *
 	 * @return array
 	 */
-	protected function _get_authorize_params()
+	public function validate_authorize_params()
 	{
-		$input = array();
-
-		if ($this->_request->method() == Request::GET)
-		{
-			$input = $this->_request->query();
-		}
-		else
-		{
-			$input = $this->_request->post();
-		}
-
-		return Arr::extract($input, array(
+		$request_params = Arr::extract($this->_request->query(), array(
 			'client_id',
 			'response_type',
 			'redirect_uri',
 			'state',
 			'scope',
 		));
-	}
-
-	/**
-	 *
-	 * @return array
-	 */
-	public function validate_authorize_params()
-	{
-		$request_params = $this->_get_authorize_params();
 
 		$validation = Validation::factory($request_params)
 			->rule('client_id',     'not_empty')
@@ -187,7 +167,7 @@ class Kohana_OAuth2_Provider {
 		$user_id       = NULL;
 		$scopes        = NULL;
 
-		// Get an authorization handler
+		// Get an client authorization handler
 		$authorization = OAuth2_Provider_Authorization::factory($this->_request);
 
 		// Get the client issueing this request
@@ -211,7 +191,7 @@ class Kohana_OAuth2_Provider {
 
 		// Prepare the response
 		$response = array(
-			'token_type'    => OAuth2::TOKEN_TYPE_BEARER,
+			'token_type'    => OAuth2::TOKEN_TYPE_BEARER, // TODO: Support other token types here..
 			'expires_in'    => Model_OAuth2_Access_Token::$lifetime,
 		);
 
@@ -236,59 +216,16 @@ class Kohana_OAuth2_Provider {
 	}
 
 	/**
+	 * Verfify a token while accessing a protected resource
 	 *
+	 * @param  array $scope List of required scopes
 	 * @return array
 	 */
-	protected function _get_verify_token_params()
-	{
-		$input = array();
-
-		if ($this->_request->method() == Request::GET)
-		{
-			$input = $this->_request->query();
-		}
-		else
-		{
-			$input = $this->_request->post();
-		}
-
-		$authorization_header = $this->_request->headers('Authorization');
-
-		if (preg_match('/^Bearer (.*)/i', $authorization_header, $matches))
-		{
-			$input['access_token'] = $matches[1];
-		}
-
-		return Arr::extract($input, array(
-			'access_token',
-		));
-	}
-
-	public function validate_verify_token_params()
-	{
-		$request_params = $this->_get_verify_token_params();
-
-		$validation = Validation::factory($request_params)
-			->rule('access_token',  'not_empty')
-			->rule('access_token',  'uuid::valid');
-
-		if ( ! $validation->check())
-			throw new OAuth2_Exception_InvalidRequest("Invalid Request");
-
-		$access_token = Model_OAuth2_Access_Token::find_token($request_params['access_token']);
-
-		if ( ! $access_token->loaded())
-			throw new OAuth2_Exception_InvalidToken('Invalid Access Token');
-
-		return $request_params;
-	}
-
 	public function verify_token($scope = NULL)
 	{
-		$request_params = $this->validate_verify_token_params();
+		//TODO: Scopes..
+		$token_type = OAuth2_Provider_TokenType::factory($this->_request);
 
-		$access_token = Model_OAuth2_Access_Token::find_token($request_params['access_token']);
-
-		return array($access_token->client_id, $access_token->user_id);
+		return array($token_type->get_client(), $token_type->get_user_id());
 	}
 }

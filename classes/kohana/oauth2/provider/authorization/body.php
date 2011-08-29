@@ -20,11 +20,16 @@ class Kohana_OAuth2_Provider_Authorization_Body extends OAuth2_Provider_Authoriz
 	{
 		if ($this->_request->method() == Request::GET)
 		{
+			// This is a breach of the spec .. GET isnt really allowed use this method!
 			return $this->_request->query('client_id');
 		}
 		else if ($this->_request->method() == Request::POST)
 		{
 			return $this->_request->post('client_id');
+		}
+		else
+		{
+			// TODO: Raise something here?
 		}
 	}
 
@@ -37,11 +42,16 @@ class Kohana_OAuth2_Provider_Authorization_Body extends OAuth2_Provider_Authoriz
 	{
 		if ($this->_request->method() == Request::GET)
 		{
+			// This is a breach of the spec .. GET isnt really allowed use this method!
 			return $this->_request->query('client_secret');
 		}
 		else if ($this->_request->method() == Request::POST)
 		{
 			return $this->_request->post('client_secret');
+		}
+		else
+		{
+			// TODO: Raise something here?
 		}
 	}
 
