@@ -29,7 +29,7 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Password extends OAuth2_Consumer
 
 		if ($response->status() != 200)
 		{
-			throw new OAuth2_Exception('Something went wrong');
+			throw new OAuth2_Exception_InvalidGrant('Error! .. '.$response->body());
 		}
 
 		switch ($response->headers('content-type'))

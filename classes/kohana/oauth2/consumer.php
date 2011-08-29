@@ -59,27 +59,40 @@ abstract class Kohana_OAuth2_Consumer {
 			$token = $this->_grant_type->request_token($user_id);
 		}
 
+		// Try to use the token
 		try
 		{
-			$response = $this->_execute($request, $token);
+			return $this->_execute($request, $token);
 		}
 		catch (OAuth2_Exception_InvalidToken $e)
 		{
-			// If we dont have a refresh token, there is nothing to retry.
-			if ($token->refresh_token == NULL)
-				throw $e;
-
-			// The token was invalid/expired. Use our refresh token to get a new one..
-			$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', array(
-				'refresh_token' => $token->refresh_token,
-			), $this->_provider);
-
-			$token = $refresh_grant_type->request_token($user_id);
-
-			$response = $this->_execute($request, $token);
+			// Failure .. Move on
 		}
 
-		return $response;
+		// Do we have a refresh token?
+		if ($token->refresh_token != NULL)
+		{
+			// Try to exchange a refresh token for an access token
+			try
+			{
+				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', array(
+					'refresh_token' => $token->refresh_token,
+				), $this->_provider);
+
+				$token = $refresh_grant_type->request_token($user_id);
+
+				return $this->_execute($request, $token);
+			}
+			catch (OAuth2_Exception_InvalidGrant $e)
+			{
+				// Failure .. Move on
+			}
+		}
+
+		// If we get here, our token and refresh token are both expired. Get another.
+		$token = $this->_grant_type->request_token($user_id);
+
+		return $this->_execute($request, $token);
 	}
 
 	protected function _execute($request, $token)

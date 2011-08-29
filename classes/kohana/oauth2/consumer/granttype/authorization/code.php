@@ -9,26 +9,23 @@
  * @copyright  (c) 2011 Managed I.T.
  * @license    https://github.com/managedit/kohana-oauth2/blob/master/LICENSE.md
  */
-abstract class Kohana_OAuth2_Consumer_GrantType_Refresh_Token extends OAuth2_Consumer_GrantType {
+abstract class Kohana_OAuth2_Consumer_GrantType_Authorization_Code extends OAuth2_Consumer_GrantType {
 
 	public function request_token($user_id = NULL)
 	{
 		$request = Request::factory($this->_config[$this->_provider]['token_uri'])
-			->method(Request::POST)
-			->post(array(
-				'grant_type'    => 'refresh_token',
-				'client_id'     => $this->_config[$this->_provider]['client_id'],
-				'client_secret' => $this->_config[$this->_provider]['client_secret'],
-				'refresh_token' => $this->_options['refresh_token'],
-			));
+				->method(Request::POST)
+				->post(array(
+					'grant_type' => 'authorization_code',
+					'code'       => $this->_options['code'],
+				));
 
 		$response = $request->execute();
 
 		if ($response->status() != 200)
 		{
-			throw new OAuth2_Exception_InvalidGrant('Error! .. '.$response->body());
+			throw new OAuth2_Exception('Something went wrong');
 		}
-
 
 		switch ($response->headers('content-type'))
 		{
