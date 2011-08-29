@@ -28,7 +28,7 @@ class Kohana_OAuth2_Provider {
 
 	public function __construct(Request $request)
 	{
-		$this->_config = Kohana::$config->load('oauth2');
+		$this->_config = Kohana::$config->load('oauth2.provider');
 		$this->_request = $request;
 	}
 

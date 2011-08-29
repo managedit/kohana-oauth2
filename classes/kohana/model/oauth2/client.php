@@ -101,6 +101,6 @@ class Kohana_Model_OAuth2_Client
 	 */
 	public function allowed_response_types()
 	{
-		return $this->_config->supported_response_types;
+		return $this->_config->provider->supported_response_types;
 	}
 }
