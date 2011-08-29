@@ -45,10 +45,17 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 
 	protected function _oauth_verify_token($scope = NULL)
 	{
-		list($client_id, $user_id) = $this->_oauth->verify_token($scope);
+		try
+		{
+			list($client_id, $user_id) = $this->_oauth->verify_token($scope);
 
-		$this->_oauth_client_id = $client_id;
-		$this->_oauth_user_id = $user_id;
+			$this->_oauth_client_id = $client_id;
+			$this->_oauth_user_id = $user_id;
+		}
+		catch (OAuth2_Exception_InvalidToken $e)
+		{
+			$this->response->headers('WWW-Authenticate', 'Bearer');
+		}
 	}
 
 }

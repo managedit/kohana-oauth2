@@ -52,6 +52,7 @@ abstract class Kohana_Controller_OAuth2_Endpoints extends Controller {
 		{
 			// Something went wrong, lets give a formatted error
 			$this->response->status(400);
+			$this->response->headers('WWW-Authenticate', 'Bearer');
 			$this->response->body($e->getJsonError());
 		}
 	}

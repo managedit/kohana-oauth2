@@ -50,8 +50,8 @@ class Kohana_OAuth2_Provider {
 			->rule('client_id',     'not_empty')
 			->rule('client_id',     'uuid::valid')
 			->rule('response_type', 'not_empty')
-			->rule('response_type', 'in_array',  array(':value', $this->_config->supported_response_types))
-			->rule('scope',         'in_array',  array(':value', $this->_config->scopes))
+			->rule('response_type', 'in_array',  array(':value', $this->_config['supported_response_types']))
+			->rule('scope',         'in_array',  array(':value', $this->_config['scopes']))
 			->rule('redirect_uri',  'url');
 
 		if ( ! $validation->check())
@@ -201,7 +201,7 @@ class Kohana_OAuth2_Provider {
 		$response['access_token'] = $access_token->access_token;
 
 		// If refreh tokens are supported, add one.
-		if (in_array(OAuth2::GRANT_TYPE_REFRESH_TOKEN, $this->_config->supported_grant_types))
+		if (in_array(OAuth2::GRANT_TYPE_REFRESH_TOKEN, $this->_config['supported_grant_types']))
 		{
 			// Generate a refresh token
 			$refresh_token = Model_OAuth2_Refresh_Token::create_token($client->client_id, $user_id, $scopes);
