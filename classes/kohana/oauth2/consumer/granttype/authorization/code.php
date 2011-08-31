@@ -24,7 +24,12 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Authorization_Code extends OAuth
 
 		if ($response->status() != 200)
 		{
-			throw new OAuth2_Exception('Something went wrong');
+			$e = new OAuth2_Exception_InvalidGrant('Authorization Needed');
+
+			// TODO...
+			$e->setRedirectUri($this->_config[$this->_provider]['authorize_uri']);
+
+			throw $e;
 		}
 
 		switch ($response->headers('content-type'))

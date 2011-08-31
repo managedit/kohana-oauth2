@@ -11,4 +11,17 @@
  */
 class Kohana_OAuth2_Exception_InvalidGrant extends OAuth2_Exception {
 	protected $_error = OAuth2::ERROR_INVALID_GRANT;
+
+	protected $_redirect_uri;
+
+	public function setRedirectUri($redirect_uri = NULL)
+	{
+		$this->_redirect_uri = $redirect_uri;
+	}
+
+	public function getRedirectUri($state = NULL)
+	{
+		// TODO: State
+		return $this->_redirect_uri;
+	}
 }

@@ -74,9 +74,9 @@ abstract class Kohana_OAuth2_Provider_GrantType {
 
 	protected function _get_request_param($key)
 	{
-		$result = $this->_get_request_params(array($key));
+		$result = $this->_get_request_params();
 
-		return (count($result) == 1) ? $result[0] : NULL;
+		return (isset($result[$key])) ? $result[$key] : NULL;
 	}
 
 	/**
