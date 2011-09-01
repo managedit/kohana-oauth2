@@ -11,7 +11,7 @@
  */
 abstract class Kohana_OAuth2_Consumer_GrantType_Refresh_Token extends OAuth2_Consumer_GrantType {
 
-	public function request_token($user_id = NULL)
+	public function request_token($user_id = NULL, $grant_type_options = array())
 	{
 		$request = Request::factory($this->_config[$this->_provider]['token_uri'])
 			->method(Request::POST)
@@ -19,7 +19,7 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Refresh_Token extends OAuth2_Con
 				'grant_type'    => 'refresh_token',
 				'client_id'     => $this->_config[$this->_provider]['client_id'],
 				'client_secret' => $this->_config[$this->_provider]['client_secret'],
-				'refresh_token' => $this->_options['refresh_token'],
+				'refresh_token' => $grant_type_options['refresh_token'],
 			));
 
 		$response = $request->execute();

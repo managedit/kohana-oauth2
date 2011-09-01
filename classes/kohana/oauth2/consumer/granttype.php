@@ -15,7 +15,7 @@ abstract class Kohana_OAuth2_Consumer_GrantType {
 	 * @var Config
 	 */
 	protected $_config;
-	
+
 	/**
 	 * @var array Request Paramaters
 	 */
@@ -26,22 +26,21 @@ abstract class Kohana_OAuth2_Consumer_GrantType {
 	 */
 	protected $_provider;
 
-	public static function factory($type, $options, $provider)
+	public static function factory($type, $provider)
 	{
 		$class = 'OAuth2_Consumer_GrantType_'.$type;
 
 		if ( ! class_exists($class))
 			throw new OAuth2_Exception_UnsupportedGrantType('Unknown or invalid grant_type');
 
-		return new $class($options, $provider);
+		return new $class($provider);
 	}
 
-	public function __construct($options, $provider)
+	public function __construct($provider)
 	{
 		$this->_config = Kohana::$config->load('oauth2.consumer');
-		$this->_options = $options;
 		$this->_provider = $provider;
 	}
 
-	abstract public function request_token($user_id = NULL);
+	abstract public function request_token($user_id = NULL, $grant_type_options = array());
 }

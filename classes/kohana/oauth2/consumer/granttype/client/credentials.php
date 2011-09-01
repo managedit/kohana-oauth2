@@ -13,7 +13,7 @@ defined('SYSPATH') or die('No direct script access.');
  */
 abstract class Kohana_OAuth2_Consumer_GrantType_Client_Credentials extends OAuth2_Consumer_GrantType {
 
-	public function request_token($user_id = NULL)
+	public function request_token($user_id = NULL, $grant_type_options = array())
 	{
 		$request = Request::factory($this->_config[$this->_provider]['token_uri'])
 				->method(Request::POST)

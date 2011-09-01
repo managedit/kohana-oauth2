@@ -27,36 +27,40 @@ abstract class Kohana_OAuth2_Consumer {
 	protected $_provider;
 
 
-	public static function factory($provider, $grant_type, $grant_type_options = array())
+	public static function factory($provider, $user_id = NULL)
 	{
-		return new OAuth2_Consumer($provider, $grant_type, $grant_type_options);
+		return new OAuth2_Consumer($provider, $user_id);
 	}
-
 	/**
 	 * Constructor
 	 */
-	public function __construct($provider, $grant_type, $grant_type_options = array())
+	public function __construct($provider, $user_id = NULL)
 	{
 		$this->_config = Kohana::$config->load('oauth2.consumer');
 		$this->_provider = $provider;
-		$this->_grant_type = OAuth2_Consumer_GrantType::factory($grant_type, $grant_type_options, $provider);
+		$this->_user_id = $user_id;
+
+		$grant_type = $this->_config[$provider]['grant_type'];
+
+		$this->_grant_type = OAuth2_Consumer_GrantType::factory($grant_type, $provider, $user_id);
 	}
 
 	/**
 	 * Execute an API request
+	 *
 	 * @param Request $request
 	 * @param string  $user_id
 	 *
 	 * @return Response
 	 */
-	public function execute(Request $request, $user_id = NULL)
+	public function execute(Request $request)
 	{
-		$token = Model_OAuth2_User_Token::find_token($this->_provider, $user_id);
+		$token = Model_OAuth2_User_Token::find_token($this->_provider, $this->_user_id);
 
 		// Dont have a token? Lets ask for one..
 		if ( ! $token->loaded())
 		{
-			$token = $this->_grant_type->request_token($user_id);
+			throw new OAuth2_Exception_InvalidToken('No token avail');
 		}
 
 		// Try to use the token
@@ -75,24 +79,22 @@ abstract class Kohana_OAuth2_Consumer {
 			// Try to exchange a refresh token for an access token
 			try
 			{
-				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', array(
-					'refresh_token' => $token->refresh_token,
-				), $this->_provider);
+				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider, $this->_user_id);
 
-				$token = $refresh_grant_type->request_token($user_id);
+				$token = $refresh_grant_type->request_token($this->_user_id, array(
+					'refresh_token' => $token->refresh_token,
+				));
 
 				return $this->_execute($request, $token);
 			}
 			catch (OAuth2_Exception_InvalidGrant $e)
 			{
-				// Failure .. Move on
+				throw new OAuth2_Exception_InvalidToken('No token avail');
 			}
 		}
 
 		// If we get here, our token and refresh token are both expired. Get another.
-		$token = $this->_grant_type->request_token($user_id);
-
-		return $this->_execute($request, $token);
+		throw new OAuth2_Exception_InvalidToken('No token avail');
 	}
 
 	protected function _execute($request, $token)
@@ -107,5 +109,15 @@ abstract class Kohana_OAuth2_Consumer {
 		}
 
 		return $response;
+	}
+
+	public function request_token($user_id, $grant_type_options = array())
+	{
+		$this->_grant_type->request_token($user_id, $grant_type_options);
+	}
+
+	public function get_grant_type()
+	{
+		return $this->_grant_type;
 	}
 }

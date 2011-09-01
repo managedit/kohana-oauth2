@@ -11,25 +11,20 @@
  */
 abstract class Kohana_OAuth2_Consumer_GrantType_Authorization_Code extends OAuth2_Consumer_GrantType {
 
-	public function request_token($user_id = NULL)
+	public function request_token($user_id = NULL, $grant_type_options = array())
 	{
 		$request = Request::factory($this->_config[$this->_provider]['token_uri'])
 				->method(Request::POST)
 				->post(array(
 					'grant_type' => 'authorization_code',
-					'code'       => $this->_options['code'],
+					'code'       => $grant_type_options['code'],
 				));
 
 		$response = $request->execute();
 
 		if ($response->status() != 200)
 		{
-			$e = new OAuth2_Exception_InvalidGrant('Authorization Needed');
-
-			// TODO...
-			$e->setRedirectUri($this->_config[$this->_provider]['authorize_uri']);
-
-			throw $e;
+			throw new OAuth2_Exception_InvalidGrant('Error! .. '.$response->body());
 		}
 
 		switch ($response->headers('content-type'))
@@ -52,4 +47,14 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Authorization_Code extends OAuth
 		return $token;
 	}
 
+	public function get_redirect_uri($state, $response_type = OAuth2::RESPONSE_TYPE_CODE)
+	{
+		$query = http_build_query(array(
+			'client_id'     => $this->_config[$this->_provider]['client_id'],
+			'redirect_uri'  => $this->_config[$this->_provider]['redirect_uri'],
+			'response_type' => $response_type,
+		));
+
+		return $this->_config[$this->_provider]['redirect_uri'].'?'.$query;
+	}
 }
