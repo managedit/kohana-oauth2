@@ -46,7 +46,7 @@ class Kohana_Model_OAuth2_User_Token
 			->where('provider', '=', $provider)
 			->order_by('id', 'DESC');
 
-		if (NULL !== $user_id)
+		if ($user_id !== NULL)
 		{
 			$query->where('user_id', '=', $user_id);
 		}

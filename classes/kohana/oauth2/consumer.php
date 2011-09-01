@@ -27,14 +27,14 @@ abstract class Kohana_OAuth2_Consumer {
 	protected $_provider;
 
 
-	public static function factory($provider, $user_id = NULL)
+	public static function factory($provider, $user_id = FALSE)
 	{
 		return new OAuth2_Consumer($provider, $user_id);
 	}
 	/**
 	 * Constructor
 	 */
-	public function __construct($provider, $user_id = NULL)
+	public function __construct($provider, $user_id = FALSE)
 	{
 		$this->_config = Kohana::$config->load('oauth2.consumer');
 		$this->_provider = $provider;
@@ -60,7 +60,10 @@ abstract class Kohana_OAuth2_Consumer {
 		// Dont have a token? Lets ask for one..
 		if ( ! $token->loaded())
 		{
-			throw new OAuth2_Exception_InvalidToken('No token avail');
+			throw new OAuth2_Exception_InvalidToken('No token available for provider \':provider\' and user_id \':user_id\'', array(
+				':provider' => $this->_provider,
+				':user_id' => $this->_user_id,
+			));
 		}
 
 		// Try to use the token
@@ -89,7 +92,10 @@ abstract class Kohana_OAuth2_Consumer {
 			}
 			catch (OAuth2_Exception_InvalidGrant $e)
 			{
-				throw new OAuth2_Exception_InvalidToken('No token avail');
+				throw new OAuth2_Exception_InvalidToken('No token available for provider \':provider\' and user_id \':user_id\'', array(
+					':provider' => $this->_provider,
+					':user_id' => $this->_user_id,
+				));
 			}
 		}
 
@@ -103,7 +109,8 @@ abstract class Kohana_OAuth2_Consumer {
 
 		$response = $request->execute();
 
-		if ($response->headers('WWW-Authenticate') != NULL)
+//		if ($response->headers('WWW-Authenticate') != NULL)
+		if ($response->status() == 401)
 		{
 			throw new OAuth2_Exception_InvalidToken('Invalid Token');
 		}
