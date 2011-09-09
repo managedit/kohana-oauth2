@@ -32,19 +32,36 @@ class Kohana_OAuth2_Provider {
 		$this->_request = $request;
 	}
 
+	protected function get_authorize_params()
+	{
+		if ($this->_request->method() == Request::GET)
+		{
+			return Arr::extract($this->_request->query(), array(
+				'client_id',
+				'response_type',
+				'redirect_uri',
+				'state',
+				'scope',
+			));
+		}
+		else
+		{
+			return Arr::extract($this->_request->post(), array(
+				'client_id',
+				'response_type',
+				'redirect_uri',
+				'state',
+				'scope',
+			));
+		}
+	}
 	/**
 	 *
 	 * @return array
 	 */
 	public function validate_authorize_params()
 	{
-		$request_params = Arr::extract($this->_request->query(), array(
-			'client_id',
-			'response_type',
-			'redirect_uri',
-			'state',
-			'scope',
-		));
+		$request_params = $this->get_authorize_params();
 
 		$validation = Validation::factory($request_params)
 			->rule('client_id',     'not_empty')
