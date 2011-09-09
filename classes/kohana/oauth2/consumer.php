@@ -118,9 +118,9 @@ abstract class Kohana_OAuth2_Consumer {
 		return $response;
 	}
 
-	public function request_token($user_id, $grant_type_options = array())
+	public function request_token($grant_type_options = array())
 	{
-		$this->_grant_type->request_token($user_id, $grant_type_options);
+		$this->_grant_type->request_token($this->_user_id, $grant_type_options);
 	}
 
 	public function get_grant_type()

@@ -16,8 +16,11 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Authorization_Code extends OAuth
 		$request = Request::factory($this->_config[$this->_provider]['token_uri'])
 				->method(Request::POST)
 				->post(array(
-					'grant_type' => 'authorization_code',
-					'code'       => $grant_type_options['code'],
+					'grant_type'    => 'authorization_code',
+					'code'          => $grant_type_options['code'],
+					'redirect_uri'  => URL::site($this->_config[$this->_provider]['redirect_uri'], TRUE),
+					'client_id'     => $this->_config[$this->_provider]['client_id'],
+					'client_secret' => $this->_config[$this->_provider]['client_secret'],
 				));
 
 		$response = $request->execute();
@@ -47,14 +50,15 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Authorization_Code extends OAuth
 		return $token;
 	}
 
-	public function get_redirect_uri($state, $response_type = OAuth2::RESPONSE_TYPE_CODE)
+	public function get_redirect_uri($state = NULL, $response_type = OAuth2::RESPONSE_TYPE_CODE)
 	{
 		$query = http_build_query(array(
 			'client_id'     => $this->_config[$this->_provider]['client_id'],
-			'redirect_uri'  => $this->_config[$this->_provider]['redirect_uri'],
+			'redirect_uri'  => URL::site($this->_config[$this->_provider]['redirect_uri'], TRUE),
 			'response_type' => $response_type,
+			'state'         => $state
 		));
 
-		return $this->_config[$this->_provider]['redirect_uri'].'?'.$query;
+		return $this->_config[$this->_provider]['authorize_uri'].'?'.$query;
 	}
 }
