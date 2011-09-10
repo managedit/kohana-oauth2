@@ -17,9 +17,9 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 	protected $_oauth;
 
 	/**
-	 * @var string Client ID
+	 * @var Model_OAuth2_Client
 	 */
-	protected $_oauth_client_id = NULL;
+	protected $_oauth_client;
 
 	/**
 	 * @var string User ID
@@ -47,9 +47,9 @@ abstract class Kohana_OAuth2_Controller extends Controller {
 	{
 		try
 		{
-			list($client_id, $user_id) = $this->_oauth->verify_token($scope);
+			list($client, $user_id) = $this->_oauth->verify_token($scope);
 
-			$this->_oauth_client_id = $client_id;
+			$this->_oauth_client = $client;
 			$this->_oauth_user_id = $user_id;
 		}
 		catch (OAuth2_Exception_InvalidToken $e)
