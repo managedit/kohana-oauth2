@@ -42,5 +42,5 @@ abstract class Kohana_OAuth2_Consumer_GrantType {
 		$this->_provider = $provider;
 	}
 
-	abstract public function request_token($user_id = NULL, $grant_type_options = array());
+	abstract public function request_token($grant_type_options = array());
 }

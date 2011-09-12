@@ -13,7 +13,7 @@ defined('SYSPATH') or die('No direct script access.');
  */
 abstract class Kohana_OAuth2_Consumer_GrantType_Password extends OAuth2_Consumer_GrantType {
 
-	public function request_token($user_id = NULL, $grant_type_options = array())
+	public function request_token($grant_type_options = array())
 	{
 		$request = Request::factory($this->_config[$this->_provider]['token_uri'])
 				->method(Request::POST)
@@ -42,13 +42,6 @@ abstract class Kohana_OAuth2_Consumer_GrantType_Password extends OAuth2_Consumer
 				break;
 		}
 
-		// Lazy..
-		$token_type = @$x['token_type'];
-		$access_token = @$x['access_token'];
-		$refresh_token = @$x['refresh_token'];
-
-		$token = Model_OAuth2_User_Token::create_token($this->_provider, $token_type, $access_token, $user_id, $refresh_token);
-
-		return $token;
+		return $x;
 	}
 }
