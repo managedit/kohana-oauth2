@@ -65,7 +65,7 @@ class Kohana_Model_OAuth2_Client
 	 */
 	public static function create_client($redirect_uri = NULL, $user_id = NULL)
 	{
-		$client = new Model_OAuth2_Access_Token(
+		$client = new Model_OAuth2_Client(
 			array(
 				'data' => array(
 					'user_id' => $user_id,
