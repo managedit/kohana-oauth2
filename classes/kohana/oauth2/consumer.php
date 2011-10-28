@@ -44,8 +44,16 @@ abstract class Kohana_OAuth2_Consumer {
 	{
 		$this->_config = Kohana::$config->load('oauth2.consumer');
 		$this->_provider = $provider;
-		$this->_token = $token;
 		$this->_grant_type = OAuth2_Consumer_GrantType::factory($this->_config[$provider]['grant_type'], $provider);
+		
+		if ($token === NULL)
+		{
+			$this->_token = Session::instance()->get('oauth2.'.$this->_provider.'.token', NULL);
+		}
+		else
+		{
+			$this->_token = $token;
+		}
 	}
 
 	/**
@@ -106,9 +114,11 @@ abstract class Kohana_OAuth2_Consumer {
 			{
 				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider);
 
-				$this->_token = $refresh_grant_type->request_token(array(
+				$token = $refresh_grant_type->request_token(array(
 					'refresh_token' => $token['refresh_token'],
 				));
+				
+				$this->_store_token($token);
 
 				$result = $this->_execute($request);
 				
@@ -159,11 +169,25 @@ abstract class Kohana_OAuth2_Consumer {
 
 	public function request_token($grant_type_options = array())
 	{
-		$this->_token = $this->_grant_type->request_token($grant_type_options);
+		$token = $this->_grant_type->request_token($grant_type_options);
 
+		$this->_store_token($token);
+		
+		return $token;
+	}
+	
+	protected function _store_token($token)
+	{
+		$this->_token = $token;
+		
+		Session::instance()->set('oauth2.'.$this->_provider.'.token', $token);
+	}
+	
+	protected function get_token()
+	{
 		return $this->_token;
 	}
-
+		
 	public function get_grant_type()
 	{
 		return $this->_grant_type;
