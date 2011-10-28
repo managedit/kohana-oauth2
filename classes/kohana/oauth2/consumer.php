@@ -183,7 +183,7 @@ abstract class Kohana_OAuth2_Consumer {
 		Session::instance()->set('oauth2.'.$this->_provider.'.token', $token);
 	}
 	
-	protected function get_token()
+	public function get_token()
 	{
 		return $this->_token;
 	}
