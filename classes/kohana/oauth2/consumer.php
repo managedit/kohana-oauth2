@@ -107,7 +107,7 @@ abstract class Kohana_OAuth2_Consumer {
 		}
 
 		// Do we have a refresh token?
-		if (isset($token['refresh_token']))
+		if (isset($this->_token['refresh_token']))
 		{
 			// Try to exchange a refresh token for an access token
 			try
@@ -115,7 +115,7 @@ abstract class Kohana_OAuth2_Consumer {
 				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider);
 
 				$token = $refresh_grant_type->request_token(array(
-					'refresh_token' => $token['refresh_token'],
+					'refresh_token' => $this->_token['refresh_token'],
 				));
 				
 				$this->_store_token($token);
