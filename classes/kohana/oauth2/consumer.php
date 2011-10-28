@@ -65,6 +65,8 @@ abstract class Kohana_OAuth2_Consumer {
 	 */
 	public function execute(Request $request, $token = NULL)
 	{
+		Kohana::$log->add(Log::DEBUG, "OAuth2: Attempting to make request");
+		
 		if (Kohana::$profiling === TRUE AND class_exists('Profiler', FALSE))
 		{
 			// Start a new benchmark
@@ -76,7 +78,7 @@ abstract class Kohana_OAuth2_Consumer {
 			$this->_token = $token;
 		}
 
-		// Dont have a token? Lets ask for one..
+		// Dont have a token? Oh well..
 		if ($this->_token === NULL OR ! isset($this->_token['access_token']))
 		{
 			if (isset($benchmark))
@@ -84,7 +86,9 @@ abstract class Kohana_OAuth2_Consumer {
 				// Stop the benchmark
 				Profiler::stop($benchmark);
 			}
-
+			
+			Kohana::$log->add(Log::DEBUG, "OAuth2: No token available");
+			
 			throw new OAuth2_Exception_InvalidToken('No token available');
 		}
 
@@ -103,12 +107,14 @@ abstract class Kohana_OAuth2_Consumer {
 		}
 		catch (OAuth2_Exception_InvalidToken $e)
 		{
+			Kohana::$log->add(Log::DEBUG, "OAuth2: access_token invalid. Checking for refresh_token.");
 			// Failure .. Move on
 		}
 
 		// Do we have a refresh token?
 		if (isset($this->_token['refresh_token']))
 		{
+			Kohana::$log->add(Log::DEBUG, "OAuth2: refresh_token available. Attemping to exchange it for a fresh access_token.");
 			// Try to exchange a refresh token for an access token
 			try
 			{
@@ -137,7 +143,9 @@ abstract class Kohana_OAuth2_Consumer {
 					// Stop the benchmark
 					Profiler::stop($benchmark);
 				}
-
+				
+				Kohana::$log->add(Log::DEBUG, "OAuth2: refresh_token invalid.");
+				
 				throw new OAuth2_Exception_InvalidToken('No token available');
 			}
 		}
@@ -148,8 +156,10 @@ abstract class Kohana_OAuth2_Consumer {
 			Profiler::stop($benchmark);
 		}
 
-		// If we get here, our token and refresh token are both expired. Get another.
-		throw new OAuth2_Exception_InvalidToken('No token avail');
+		// If we get here, our token and refresh token are both expired.
+		Kohana::$log->add(Log::DEBUG, "OAuth2: Ran out of options, unable to execute request.");
+		
+		throw new OAuth2_Exception_InvalidToken('No token available');
 	}
 
 	protected function _execute($request)
