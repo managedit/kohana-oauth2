@@ -159,8 +159,16 @@ abstract class Kohana_OAuth2_Consumer {
 	protected function _execute($request)
 	{
 		$request->headers('Authorization', $this->_token['token_type'].' '.$this->_token['access_token']);
-
-		$response = $request->execute();
+		
+		try
+		{
+			$response = $request->execute();
+		}
+		catch (HTTP_Exception_401 $e)
+		{
+			// Dirty hack to work-around a Kohana HVMC request isolation bug.
+			throw new OAuth2_Exception_InvalidToken('Invalid Token');
+		}
 
 //		if ($response->headers('WWW-Authenticate') != NULL)
 		if ($response->status() == 401)
@@ -203,7 +211,6 @@ abstract class Kohana_OAuth2_Consumer {
 		$this->_store_token($token);
 		
 		return $token;
-
 	}
 	
 	public function get_grant_type()
