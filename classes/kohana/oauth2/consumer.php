@@ -57,6 +57,12 @@ abstract class Kohana_OAuth2_Consumer {
 	 */
 	public function execute(Request $request, $token = NULL)
 	{
+		if (Kohana::$profiling === TRUE AND class_exists('Profiler', FALSE))
+		{
+			// Start a new benchmark
+			$benchmark = Profiler::start('Oauth2_Consumer::execute', $request->uri());
+		}
+
 		if ($token != NULL)
 		{
 			$this->_token = $token;
@@ -65,13 +71,27 @@ abstract class Kohana_OAuth2_Consumer {
 		// Dont have a token? Lets ask for one..
 		if ($this->_token === NULL OR ! isset($this->_token['access_token']))
 		{
+			if (isset($benchmark))
+			{
+				// Stop the benchmark
+				Profiler::stop($benchmark);
+			}
+
 			throw new OAuth2_Exception_InvalidToken('No token available');
 		}
 
 		// Try to use the token
 		try
 		{
-			return $this->_execute($request);
+			$result = $this->_execute($request);
+			
+			if (isset($benchmark))
+			{
+				// Stop the benchmark
+				Profiler::stop($benchmark);
+			}
+
+			return $result;
 		}
 		catch (OAuth2_Exception_InvalidToken $e)
 		{
@@ -86,16 +106,36 @@ abstract class Kohana_OAuth2_Consumer {
 			{
 				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider);
 
-				$token = $refresh_grant_type->request_token(array(
+				$this->_token = $refresh_grant_type->request_token(array(
 					'refresh_token' => $token['refresh_token'],
 				));
 
-				return $this->_execute($request);
+				$result = $this->_execute($request);
+				
+				if (isset($benchmark))
+				{
+					// Stop the benchmark
+					Profiler::stop($benchmark);
+				}
+
+				return $result;
 			}
 			catch (OAuth2_Exception_InvalidGrant $e)
 			{
+				if (isset($benchmark))
+				{
+					// Stop the benchmark
+					Profiler::stop($benchmark);
+				}
+
 				throw new OAuth2_Exception_InvalidToken('No token available');
 			}
+		}
+
+		if (isset($benchmark))
+		{
+			// Stop the benchmark
+			Profiler::stop($benchmark);
 		}
 
 		// If we get here, our token and refresh token are both expired. Get another.
