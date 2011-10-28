@@ -118,14 +118,8 @@ abstract class Kohana_OAuth2_Consumer {
 			// Try to exchange a refresh token for an access token
 			try
 			{
-				$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider);
-
-				$token = $refresh_grant_type->request_token(array(
-					'refresh_token' => $this->_token['refresh_token'],
-				));
+				$this->exchange_refresh_token();
 				
-				$this->_store_token($token);
-
 				$result = $this->_execute($request);
 				
 				if (isset($benchmark))
@@ -197,7 +191,21 @@ abstract class Kohana_OAuth2_Consumer {
 	{
 		return $this->_token;
 	}
+	
+	public function exchange_refresh_token()
+	{
+		$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider);
+
+		$token = $refresh_grant_type->request_token(array(
+			'refresh_token' => $this->_token['refresh_token'],
+		));
+
+		$this->_store_token($token);
 		
+		return $token;
+
+	}
+	
 	public function get_grant_type()
 	{
 		return $this->_grant_type;
