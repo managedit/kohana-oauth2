@@ -31,14 +31,22 @@ abstract class Kohana_OAuth2_Consumer {
 	 */
 	protected $_token;
 
-
+	/**
+	 * OAuth2 Factory
+	 * 
+	 * @param string $provider  Provider name
+	 * @param array  $token     Optional token to use
+	 */
 	public static function factory($provider, $token = NULL)
 	{
 		return new OAuth2_Consumer($provider, $token);
 	}
 
 	/**
-	 * Constructor
+	 * OAuth2 Constructor
+	 * 
+	 * @param string $provider  Provider name
+	 * @param array  $token     Optional token to use
 	 */
 	public function __construct($provider, $token = NULL)
 	{
@@ -48,7 +56,7 @@ abstract class Kohana_OAuth2_Consumer {
 		
 		if ($token === NULL)
 		{
-			$this->_token = Session::instance()->get('oauth2.'.$this->_provider.'.token', NULL);
+			$this->_token = $this->_retrieve_token();
 		}
 		else
 		{
@@ -59,8 +67,8 @@ abstract class Kohana_OAuth2_Consumer {
 	/**
 	 * Execute an API request
 	 *
-	 * @param Request $request
-	 *
+	 * @param Request  $request  Request to be executed
+	 * @param array    $token    Optional token to use
 	 * @return Response
 	 */
 	public function execute(Request $request, $token = NULL)
@@ -156,6 +164,11 @@ abstract class Kohana_OAuth2_Consumer {
 		throw new OAuth2_Exception_InvalidToken('No token available');
 	}
 
+	/**
+	 * Executes the given request
+	 * @param  Request   $request  Request to be executed
+	 * @return Response
+	 */
 	protected function _execute($request)
 	{
 		$request->headers('Authorization', $this->_token['token_type'].' '.$this->_token['access_token']);
@@ -179,40 +192,71 @@ abstract class Kohana_OAuth2_Consumer {
 		return $response;
 	}
 
+	/**
+	 * Given a set of grant type options, obtains a token from the provider.
+	 * 
+	 * @param array $grant_type_options Array of options, specific to each grant type.
+	 */
 	public function request_token($grant_type_options = array())
 	{
-		$token = $this->_grant_type->request_token($grant_type_options);
+		$this->_token = $this->_grant_type->request_token($grant_type_options);
 
-		$this->_store_token($token);
+		$this->_store_token($this->_token);
 		
-		return $token;
-	}
-	
-	protected function _store_token($token)
-	{
-		$this->_token = $token;
-		
-		Session::instance()->set('oauth2.'.$this->_provider.'.token', $token);
-	}
-	
-	public function get_token()
-	{
 		return $this->_token;
 	}
-	
+
+	/**
+	 * Exchanges a refresh token for a new access token.
+	 */
 	public function exchange_refresh_token()
 	{
 		$refresh_grant_type = OAuth2_Consumer_GrantType::factory('refresh_token', $this->_provider);
 
-		$token = $refresh_grant_type->request_token(array(
+		$this->_token = $refresh_grant_type->request_token(array(
 			'refresh_token' => $this->_token['refresh_token'],
 		));
 
-		$this->_store_token($token);
+		$this->_store_token($this->_token);
 		
-		return $token;
+		return $this->_token;
+	}
+
+	/**
+	 * Used to retrieve a token from persistent storage.
+	 * 
+	 * Defaults to storing the token in the users Session.
+	 */
+	protected function _retrieve_token()
+	{
+		return Session::instance()->get('oauth2.'.$this->_provider.'.token', NULL);
 	}
 	
+	/**
+	 * Used to save a token to persistent storage.
+	 * 
+	 * Defaults to storing the token in the users Session.
+	 */
+	protected function _store_token($token)
+	{
+		Session::instance()->set('oauth2.'.$this->_provider.'.token', $token);
+	}
+	
+	/**
+	 * Accessor method for retrieving to the current token.
+	 * 
+	 * @todo Is this really needed? Remove if not.
+	 */
+	public function get_token()
+	{
+		return $this->_token;
+	}
+
+	/**
+	 * Accessor method for retrieving to the current grant type.
+	 * 
+	 * @todo Is this really needed? Remove if not.
+	 */
 	public function get_grant_type()
 	{
 		return $this->_grant_type;
