@@ -261,4 +261,12 @@ abstract class Kohana_OAuth2_Consumer {
 	{
 		return $this->_grant_type;
 	}
+
+	/**
+	 * Accessor method for retrieving to the APIs base URI
+	 */
+	public function base_uri()
+	{
+		return $this->_config[$this->_provider]['base_uri'];
+	}
 }
