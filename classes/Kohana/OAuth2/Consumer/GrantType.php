@@ -28,7 +28,7 @@ abstract class Kohana_OAuth2_Consumer_GrantType {
 
 	public static function factory($type, $provider)
 	{
-		$class = 'OAuth2_Consumer_GrantType_'.ucfirst($type);
+		$class = 'OAuth2_Consumer_GrantType_'.$type;
 
 		if ( ! class_exists($class))
 			throw new OAuth2_Exception_UnsupportedGrantType('Unknown or invalid grant_type');

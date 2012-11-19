@@ -10,14 +10,14 @@
  */
 class Kohana_OAuth2 {
 	// Response Types
-	const RESPONSE_TYPE_CODE              = 'code';
-	const RESPONSE_TYPE_TOKEN             = 'token';
+	const RESPONSE_TYPE_CODE              = 'Code';
+	const RESPONSE_TYPE_TOKEN             = 'Token';
 
 	// Grant Types
-	const GRANT_TYPE_AUTH_CODE            = 'authorization_code';
-	const GRANT_TYPE_PASSWORD             = 'password';
-	const GRANT_TYPE_REFRESH_TOKEN        = 'refresh_token';
-	const GRANT_TYPE_CLIENT_CREDENTIALS   = 'client_credentials';
+	const GRANT_TYPE_AUTH_CODE            = 'Authorization_Code';
+	const GRANT_TYPE_PASSWORD             = 'Password';
+	const GRANT_TYPE_REFRESH_TOKEN        = 'Refresh_Token';
+	const GRANT_TYPE_CLIENT_CREDENTIALS   = 'Client_Credentials';
 
 	// Token Types
 	const TOKEN_TYPE_BEARER               = 'Bearer';
