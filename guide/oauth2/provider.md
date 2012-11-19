@@ -61,7 +61,7 @@ Something along the lines of this:
 						 * client. This should be done regardless of if they
 						 * granted permission or not.
 						 */
-						$this->request->redirect($redirect_url);
+						$this->redirect($redirect_url);
 					}
 
 					/**
@@ -83,7 +83,7 @@ Something along the lines of this:
 					 * logged in, redirect back to this URL ensuring ALL query
 					 * string parameters are included!
 					 */
-					$this->request->redirect(Route::url('login'));
+					$this->redirect(Route::url('login'));
 				}
 			}
 			catch (OAuth2_Exception $e)
